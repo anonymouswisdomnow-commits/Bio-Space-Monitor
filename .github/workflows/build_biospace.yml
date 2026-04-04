@@ -30,6 +30,7 @@ jobs:
           cd BioSpace
           curl -L https://raw.githubusercontent.com/gradle/gradle/v8.0.0/gradlew -o gradlew
           chmod +x gradlew
+          mkdir -p gradle/wrapper
           curl -L https://raw.githubusercontent.com/gradle/gradle/v8.0.2/gradle/wrapper/gradle-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
 
       - name: Build APK
@@ -40,5 +41,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: BioSpace-Monitor-debug.apk
+          name: BioSpace-Monitor-debug-apk
           path: BioSpace/app/build/outputs/apk/debug/app-debug.apk
