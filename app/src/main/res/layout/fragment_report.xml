@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/colorBg" android:padding="12dp">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Medical Report" android:textColor="@color/colorText"
+        android:textSize="20sp" android:textStyle="bold" android:layout_marginBottom="12dp"/>
+
+    <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginBottom="10dp"
+        app:cardBackgroundColor="@color/colorCard" app:cardCornerRadius="12dp"
+        app:strokeWidth="1dp" app:strokeColor="@color/colorBorder">
+      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+          android:orientation="vertical" android:padding="14dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Patient Name" android:textColor="@color/colorMuted" android:textSize="12sp"/>
+        <EditText android:id="@+id/et_rpt_name" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:hint="Full Name"
+            android:textColor="@color/colorText" android:layout_marginBottom="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Date of Birth" android:textColor="@color/colorMuted" android:textSize="12sp"/>
+        <EditText android:id="@+id/et_rpt_dob" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:hint="MM/DD/YYYY"
+            android:inputType="date" android:textColor="@color/colorText" android:layout_marginBottom="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Physician / Clinic" android:textColor="@color/colorMuted" android:textSize="12sp"/>
+        <EditText android:id="@+id/et_rpt_physician" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:hint="Dr. Smith"
+            android:textColor="@color/colorText" android:layout_marginBottom="12dp"/>
+        <CheckBox android:id="@+id/cb_include_env" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Include Environmental Data"
+            android:textColor="@color/colorText"/>
+        <CheckBox android:id="@+id/cb_include_ai" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Include AI Insights"
+            android:textColor="@color/colorText" android:checked="true"/>
+        <CheckBox android:id="@+id/cb_include_hrv" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Include Full HRV Data"
+            android:textColor="@color/colorText" android:checked="true"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:layout_marginTop="12dp">
+          <com.google.android.material.button.MaterialButton android:id="@+id/btn_generate_report"
+              android:layout_width="0dp" android:layout_height="wrap_content"
+              android:layout_weight="1" android:layout_marginEnd="8dp"
+              android:text="Generate"/>
+          <com.google.android.material.button.MaterialButton android:id="@+id/btn_share_report"
+              android:layout_width="0dp" android:layout_height="wrap_content"
+              android:layout_weight="1" android:text="Share"
+              app:backgroundTint="@color/colorOk"/>
+        </LinearLayout>
+      </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+      <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:cardBackgroundColor="@color/colorCard" app:cardCornerRadius="12dp"
+          app:strokeWidth="1dp" app:strokeColor="@color/colorBorder">
+        <TextView android:id="@+id/tv_report_output"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Tap Generate to create your report."
+            android:textColor="@color/colorText" android:textSize="12sp"
+            android:fontFamily="monospace" android:padding="14dp" android:lineSpacingExtra="3dp"/>
+      </com.google.android.material.card.MaterialCardView>
+    </ScrollView>
+
+</LinearLayout>

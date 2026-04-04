@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/colorBg" android:padding="12dp">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="AI Insights" android:textColor="@color/colorText"
+        android:textSize="20sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Powered by Gemini — analyzes your biometric + environment data."
+        android:textColor="@color/colorMuted" android:textSize="12sp" android:layout_marginBottom="12dp"/>
+
+    <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginBottom="10dp"
+        app:cardBackgroundColor="@color/colorCard" app:cardCornerRadius="12dp"
+        app:strokeWidth="1dp" app:strokeColor="@color/colorAccent2">
+      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+          android:orientation="vertical" android:padding="14dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="GEMINI API KEY" android:textColor="@color/colorMuted"
+            android:textSize="11sp" android:letterSpacing="0.1" android:layout_marginBottom="6dp"/>
+        <EditText android:id="@+id/et_api_key" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:inputType="textPassword"
+            android:hint="Paste your Gemini API key here"
+            android:textColor="@color/colorText" android:layout_marginBottom="10dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="YOUR QUESTION" android:textColor="@color/colorMuted"
+            android:textSize="11sp" android:letterSpacing="0.1" android:layout_marginBottom="6dp"/>
+        <EditText android:id="@+id/et_ai_prompt" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:minLines="2"
+            android:hint="What patterns do you see in my data?"
+            android:textColor="@color/colorText" android:layout_marginBottom="10dp"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_analyze"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="✨ Analyze My Data"
+            app:backgroundTint="@color/colorAccent2"/>
+      </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginBottom="10dp"
+        app:cardBackgroundColor="@color/colorCard" app:cardCornerRadius="12dp"
+        app:strokeWidth="1dp" app:strokeColor="@color/colorBorder">
+      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+          android:orientation="vertical" android:padding="14dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="QUICK ANALYSIS" android:textColor="@color/colorMuted"
+            android:textSize="11sp" android:letterSpacing="0.1" android:layout_marginBottom="8dp"/>
+        <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:columnCount="2">
+          <com.google.android.material.button.MaterialButton android:id="@+id/btn_quick_triggers"
+              android:layout_width="0dp" android:layout_height="wrap_content"
+              android:layout_columnWeight="1" android:layout_margin="3dp"
+              android:text="🎯 Find Triggers" android:textSize="11sp"
+              style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+          <com.google.android.material.button.MaterialButton android:id="@+id/btn_quick_trends"
+              android:layout_width="0dp" android:layout_height="wrap_content"
+              android:layout_columnWeight="1" android:layout_margin="3dp"
+              android:text="📈 Trends" android:textSize="11sp"
+              style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+          <com.google.android.material.button.MaterialButton android:id="@+id/btn_quick_space"
+              android:layout_width="0dp" android:layout_height="wrap_content"
+              android:layout_columnWeight="1" android:layout_margin="3dp"
+              android:text="🛸 Space Weather" android:textSize="11sp"
+              style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+          <com.google.android.material.button.MaterialButton android:id="@+id/btn_quick_summary"
+              android:layout_width="0dp" android:layout_height="wrap_content"
+              android:layout_columnWeight="1" android:layout_margin="3dp"
+              android:text="📋 Health Summary" android:textSize="11sp"
+              style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+        </GridLayout>
+      </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <ScrollView android:id="@+id/scroll_ai_response"
+        android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+      <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:cardBackgroundColor="@color/colorCard" app:cardCornerRadius="12dp"
+          app:strokeWidth="1dp" app:strokeColor="@color/colorAccent2">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:padding="14dp">
+          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:text="🤖  GEMINI RESPONSE" android:textColor="@color/colorAccent2"
+              android:textSize="11sp" android:letterSpacing="0.1" android:layout_marginBottom="8dp"/>
+          <TextView android:id="@+id/tv_ai_response"
+              android:layout_width="match_parent" android:layout_height="wrap_content"
+              android:text="Tap a button above to analyze your data."
+              android:textColor="@color/colorText" android:textSize="13sp"
+              android:lineSpacingExtra="4dp"/>
+        </LinearLayout>
+      </com.google.android.material.card.MaterialCardView>
+    </ScrollView>
+
+</LinearLayout>

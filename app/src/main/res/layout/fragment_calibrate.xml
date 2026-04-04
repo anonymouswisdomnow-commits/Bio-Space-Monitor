@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/colorBg">
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+      android:orientation="vertical" android:padding="12dp">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="BP Calibration" android:textColor="@color/colorText"
+        android:textSize="20sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Use a reference cuff monitor to calibrate your watch for greater accuracy."
+        android:textColor="@color/colorMuted" android:textSize="12sp" android:layout_marginBottom="14dp"/>
+
+    <!-- Step 1 -->
+    <com.google.android.material.card.MaterialCardView android:id="@+id/card_cal_step1"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        app:cardBackgroundColor="@color/colorCard" app:cardCornerRadius="12dp"
+        app:strokeWidth="1dp" app:strokeColor="@color/colorBorder">
+      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+          android:orientation="vertical" android:padding="16dp" android:gravity="center">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="🩺" android:textSize="48sp" android:layout_marginBottom="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Step 1 of 4" android:textColor="@color/colorText"
+            android:textSize="16sp" android:textStyle="bold"/>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Take a reading with your reference cuff monitor. Sit still for 5 minutes first."
+            android:textColor="@color/colorMuted" android:textSize="13sp"
+            android:gravity="center" android:layout_marginVertical="10dp"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_cal_step1_next"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="I've taken the reading →"/>
+      </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Step 2 -->
+    <com.google.android.material.card.MaterialCardView android:id="@+id/card_cal_step2"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp" android:visibility="gone"
+        app:cardBackgroundColor="@color/colorCard" app:cardCornerRadius="12dp"
+        app:strokeWidth="1dp" app:strokeColor="@color/colorBorder">
+      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+          android:orientation="vertical" android:padding="16dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Step 2 of 4 — Enter Cuff Reading"
+            android:textColor="@color/colorText" android:textSize="16sp" android:textStyle="bold"
+            android:layout_marginBottom="12dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Systolic (top number)" android:textColor="@color/colorMuted" android:textSize="12sp"/>
+        <EditText android:id="@+id/et_ref_sys" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:inputType="number"
+            android:hint="e.g. 120" android:textSize="22sp" android:gravity="center"
+            android:textColor="@color/colorText" android:layout_marginBottom="10dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Diastolic (bottom number)" android:textColor="@color/colorMuted" android:textSize="12sp"/>
+        <EditText android:id="@+id/et_ref_dia" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:inputType="number"
+            android:hint="e.g. 80" android:textSize="22sp" android:gravity="center"
+            android:textColor="@color/colorText" android:layout_marginBottom="10dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Pulse (optional)" android:textColor="@color/colorMuted" android:textSize="12sp"/>
+        <EditText android:id="@+id/et_ref_pulse" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:inputType="number"
+            android:hint="e.g. 72" android:textSize="22sp" android:gravity="center"
+            android:textColor="@color/colorText" android:layout_marginBottom="14dp"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal">
+          <com.google.android.material.button.MaterialButton android:id="@+id/btn_cal_step2_back"
+              android:layout_width="0dp" android:layout_height="wrap_content"
+              android:layout_weight="1" android:layout_marginEnd="8dp"
+              android:text="← Back"
+              style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+          <com.google.android.material.button.MaterialButton android:id="@+id/btn_cal_step2_next"
+              android:layout_width="0dp" android:layout_height="wrap_content"
+              android:layout_weight="2" android:text="Next →"/>
+        </LinearLayout>
+      </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Step 3 -->
+    <com.google.android.material.card.MaterialCardView android:id="@+id/card_cal_step3"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp" android:visibility="gone"
+        app:cardBackgroundColor="@color/colorCard" app:cardCornerRadius="12dp"
+        app:strokeWidth="1dp" app:strokeColor="@color/colorBorder">
+      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+          android:orientation="vertical" android:padding="16dp" android:gravity="center">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="⌚" android:textSize="48sp" android:layout_marginBottom="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Step 3 of 4" android:textColor="@color/colorText"
+            android:textSize="16sp" android:textStyle="bold"/>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Take a BP reading on your watch immediately without moving."
+            android:textColor="@color/colorMuted" android:textSize="13sp"
+            android:gravity="center" android:layout_marginVertical="10dp"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_read_watch"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="📡 Read Watch Now"/>
+        <TextView android:id="@+id/tv_watch_raw"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textColor="@color/colorAccent" android:textSize="22sp" android:textStyle="bold"
+            android:layout_marginTop="12dp" android:text=""/>
+      </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Step 4 -->
+    <com.google.android.material.card.MaterialCardView android:id="@+id/card_cal_step4"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp" android:visibility="gone"
+        app:cardBackgroundColor="@color/colorCard" app:cardCornerRadius="12dp"
+        app:strokeWidth="1dp" app:strokeColor="@color/colorOk">
+      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+          android:orientation="vertical" android:padding="16dp" android:gravity="center">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="✅" android:textSize="48sp" android:layout_marginBottom="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Calibration Complete!" android:textColor="@color/colorText"
+            android:textSize="16sp" android:textStyle="bold" android:layout_marginBottom="10dp"/>
+        <TextView android:id="@+id/tv_cal_summary"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="@color/colorText" android:textSize="13sp"
+            android:background="@color/colorCard2" android:padding="10dp"
+            android:layout_marginBottom="12dp"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_cal_finish"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Save Calibration ✓" android:layout_marginBottom="8dp"
+            app:backgroundTint="@color/colorOk"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_cal_redo"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Re-do Calibration"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+      </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- History -->
+    <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/colorCard" app:cardCornerRadius="12dp"
+        app:strokeWidth="1dp" app:strokeColor="@color/colorBorder">
+      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+          android:orientation="vertical" android:padding="14dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="CALIBRATION HISTORY" android:textColor="@color/colorMuted"
+            android:textSize="11sp" android:letterSpacing="0.1" android:layout_marginBottom="8dp"/>
+        <TextView android:id="@+id/tv_cal_history"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="No calibrations recorded yet."
+            android:textColor="@color/colorText" android:textSize="12sp"
+            android:fontFamily="monospace"/>
+      </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+  </LinearLayout>
+</ScrollView>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorBg">#0A0E1A</color>
+    <color name="colorCard">#111827</color>
+    <color name="colorCard2">#1A2235</color>
+    <color name="colorAccent">#3B82F6</color>
+    <color name="colorAccent2">#8B5CF6</color>
+    <color name="colorOk">#10B981</color>
+    <color name="colorAlert">#EF4444</color>
+    <color name="colorWarn">#F59E0B</color>
+    <color name="colorText">#F1F5F9</color>
+    <color name="colorMuted">#94A3B8</color>
+    <color name="colorBorder">#1E293B</color>
+    <color name="colorNavActive">#3B82F6</color>
+    <color name="colorNavInactive">#94A3B8</color>
+</resources>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/colorBg">
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+      android:orientation="vertical" android:padding="12dp">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Environment" android:textColor="@color/colorText"
+        android:textSize="20sp" android:textStyle="bold" android:layout_marginBottom="12dp"/>
+
+    <com.google.android.material.button.MaterialButton android:id="@+id/btn_fetch_env"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="🌐 Fetch Current Conditions" android:layout_marginBottom="10dp"/>
+
+    <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginBottom="10dp"
+        app:cardBackgroundColor="@color/colorCard" app:cardCornerRadius="12dp"
+        app:strokeWidth="1dp" app:strokeColor="@color/colorBorder">
+      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+          android:orientation="vertical" android:padding="14dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="🌤️  LOCAL WEATHER" android:textColor="@color/colorMuted"
+            android:textSize="11sp" android:letterSpacing="0.1" android:layout_marginBottom="8dp"/>
+        <TextView android:id="@+id/tv_weather_main"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Tap Fetch to load current weather."
+            android:textColor="@color/colorText" android:textSize="13sp" android:lineSpacingExtra="4dp"/>
+      </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginBottom="10dp"
+        app:cardBackgroundColor="@color/colorCard" app:cardCornerRadius="12dp"
+        app:strokeWidth="1dp" app:strokeColor="@color/colorBorder">
+      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+          android:orientation="vertical" android:padding="14dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="🛸  SPACE WEATHER (NOAA)" android:textColor="@color/colorMuted"
+            android:textSize="11sp" android:letterSpacing="0.1" android:layout_marginBottom="8dp"/>
+        <TextView android:id="@+id/tv_space_weather"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Tap Fetch to load space weather data."
+            android:textColor="@color/colorText" android:textSize="13sp" android:lineSpacingExtra="4dp"/>
+      </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginBottom="10dp"
+        app:cardBackgroundColor="@color/colorCard" app:cardCornerRadius="12dp"
+        app:strokeWidth="1dp" app:strokeColor="@color/colorBorder">
+      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+          android:orientation="vertical" android:padding="14dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="📝  MANUAL ENTRY / OVERRIDE"
+            android:textColor="@color/colorMuted" android:textSize="11sp"
+            android:letterSpacing="0.1" android:layout_marginBottom="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Barometric Pressure (mmHg)" android:textColor="@color/colorMuted" android:textSize="12sp"/>
+        <EditText android:id="@+id/et_baro" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:inputType="numberDecimal"
+            android:hint="760" android:textColor="@color/colorText" android:layout_marginBottom="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Temperature (°F)" android:textColor="@color/colorMuted" android:textSize="12sp"/>
+        <EditText android:id="@+id/et_env_temp" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:inputType="numberDecimal"
+            android:hint="72" android:textColor="@color/colorText" android:layout_marginBottom="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Humidity (%)" android:textColor="@color/colorMuted" android:textSize="12sp"/>
+        <EditText android:id="@+id/et_humidity" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:inputType="numberDecimal"
+            android:hint="45" android:textColor="@color/colorText" android:layout_marginBottom="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Geomagnetic Kp Index (0–9)" android:textColor="@color/colorMuted" android:textSize="12sp"/>
+        <EditText android:id="@+id/et_kp" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:inputType="numberDecimal"
+            android:hint="2" android:textColor="@color/colorText" android:layout_marginBottom="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Solar Flux (sfu)" android:textColor="@color/colorMuted" android:textSize="12sp"/>
+        <EditText android:id="@+id/et_flux" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:inputType="numberDecimal"
+            android:hint="120" android:textColor="@color/colorText" android:layout_marginBottom="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Notes" android:textColor="@color/colorMuted" android:textSize="12sp"/>
+        <EditText android:id="@+id/et_env_notes" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:minLines="2"
+            android:hint="Symptoms, activity, foods..." android:textColor="@color/colorText"
+            android:layout_marginBottom="12dp"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_save_snapshot"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="💾 Save Snapshot" app:backgroundTint="@color/colorOk"/>
+      </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/colorCard" app:cardCornerRadius="12dp"
+        app:strokeWidth="1dp" app:strokeColor="@color/colorBorder">
+      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+          android:orientation="vertical" android:padding="14dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="🌍  ENVIRONMENT LOG" android:textColor="@color/colorMuted"
+            android:textSize="11sp" android:letterSpacing="0.1" android:layout_marginBottom="8dp"/>
+        <TextView android:id="@+id/tv_env_log"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="No snapshots saved yet."
+            android:textColor="@color/colorText" android:textSize="12sp"
+            android:fontFamily="monospace" android:lineSpacingExtra="2dp"/>
+      </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+  </LinearLayout>
+</ScrollView>
