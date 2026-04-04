@@ -11,12 +11,12 @@ public interface CalibrationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Calibration calibration);
 
-    @Query("SELECT * FROM calibration WHERE active = 1 LIMIT 1")
+    @Query("SELECT * FROM calibrations WHERE isActive = 1 LIMIT 1")
     Calibration getActive();
 
-    @Query("SELECT * FROM calibration ORDER BY timestamp DESC")
+    @Query("SELECT * FROM calibrations ORDER BY timestamp DESC")
     List<Calibration> getAll();
 
-    @Query("UPDATE calibration SET active = 0")
+    @Query("UPDATE calibrations SET isActive = 0")
     void deactivateAll();
 }
