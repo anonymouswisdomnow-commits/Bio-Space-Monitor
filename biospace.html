@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>BioSpace Monitor</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+--bg:#0A0A12;--panel:#12121E;--border:#1E1E35;
+--aurora:#00FFB3;--solar:#FF6B35;--plasma:#7B2FBE;
+--warn:#FFD93D;--danger:#FF4757;--ok:#2ED573;
+--text:#E8E8F0;--sub:#8888AA;--font:'Courier New',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden;padding-bottom:60px}
+.header{background:var(--panel);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.logo{font-size:13px;font-weight:700;letter-spacing:3px;color:var(--aurora)}
+.logo span{color:var(--solar)}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.batt-pill{font-size:10px;color:var(--sub);letter-spacing:1px}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:var(--danger)}
+.conn-dot.on{background:var(--ok);box-shadow:0 0 6px var(--ok)}
+/* Alert banner */
+.alert-banner{padding:10px 16px;font-size:11px;letter-spacing:0.5px;display:none;border-bottom:1px solid transparent}
+.alert-banner.show{display:flex;align-items:center;gap:10px}
+.alert-banner.warn{background:rgba(255,217,61,0.1);border-color:var(--warn);color:var(--warn)}
+.alert-banner.danger{background:rgba(255,71,87,0.12);border-color:var(--danger);color:var(--danger)}
+.alert-banner .log-btn{margin-left:auto;padding:4px 12px;border:1px solid currentColor;border-radius:12px;font-size:10px;cursor:pointer;background:transparent;color:inherit;letter-spacing:1px}
+/* Tabs */
+.tabs{display:flex;background:var(--panel);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;padding:10px 14px;font-size:10px;letter-spacing:1px;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.tab.active{color:var(--aurora);border-bottom-color:var(--aurora)}
+/* Sections */
+.section{display:none;padding:14px}
+.section.active{display:block}
+/* Cards */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;position:relative;overflow:hidden}
+.card.full{grid-column:1/-1}
+.card.aurora{border-color:rgba(0,255,179,0.3);box-shadow:0 0 16px rgba(0,255,179,0.06)}
+.card.solar{border-color:rgba(255,107,53,0.3);box-shadow:0 0 16px rgba(255,107,53,0.06)}
+.card.plasma{border-color:rgba(123,47,190,0.3);box-shadow:0 0 16px rgba(123,47,190,0.06)}
+.card.warn{border-color:rgba(255,217,61,0.4);box-shadow:0 0 16px rgba(255,217,61,0.08)}
+.card.danger{border-color:rgba(255,71,87,0.4);box-shadow:0 0 16px rgba(255,71,87,0.1)}
+.clabel{font-size:9px;letter-spacing:2px;color:var(--sub);margin-bottom:4px}
+.cval{font-size:28px;font-weight:700;line-height:1;color:var(--text)}
+.cval.sm{font-size:20px}
+.cunit{font-size:10px;color:var(--sub);margin-top:2px}
+.cbadge{display:inline-block;font-size:9px;padding:2px 8px;border-radius:10px;margin-top:5px;letter-spacing:1px}
+.badge-ok{background:rgba(46,213,115,0.15);color:var(--ok)}
+.badge-warn{background:rgba(255,217,61,0.15);color:var(--warn)}
+.badge-danger{background:rgba(255,71,87,0.15);color:var(--danger)}
+/* Mini chart */
+.mini-chart{margin-top:10px;height:50px;position:relative}
+.mini-chart canvas{width:100%;height:100%;display:block}
+/* Section title */
+.stitle{font-size:10px;letter-spacing:2px;color:var(--sub);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px}
+/* Space weather bar */
+.kp-bar-bg{height:6px;border-radius:3px;background:var(--border);margin-top:8px;overflow:hidden}
+.kp-bar-fill{height:100%;border-radius:3px;transition:width 1s ease,background 1s ease}
+.kp-ticks{display:flex;justify-content:space-between;font-size:8px;color:var(--sub);margin-top:2px}
+/* IMF orientation */
+.imf-arrow{font-size:28px;text-align:center;margin:6px 0}
+/* Log form */
+.log-form{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
+.log-form .ftitle{font-size:11px;letter-spacing:2px;color:var(--aurora);margin-bottom:10px}
+.log-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.log-label{font-size:10px;color:var(--sub);flex:0 0 80px;letter-spacing:1px}
+.log-val{flex:1;font-size:14px;font-weight:700;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 10px}
+.log-input{flex:1;font-size:12px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-family:var(--font);resize:none}
+.log-btn-row{display:flex;gap:8px;margin-top:10px}
+.btn{padding:9px 16px;border-radius:8px;border:none;font-size:11px;letter-spacing:1px;cursor:pointer;font-family:var(--font)}
+.btn-aurora{background:rgba(0,255,179,0.15);color:var(--aurora);border:1px solid var(--aurora)}
+.btn-solar{background:rgba(255,107,53,0.15);color:var(--solar);border:1px solid var(--solar)}
+.btn-plasma{background:rgba(123,47,190,0.15);color:var(--plasma);border:1px solid var(--plasma)}
+.btn-warn{background:rgba(255,217,61,0.12);color:var(--warn);border:1px solid var(--warn)}
+.btn-full{flex:1}
+/* Chart container */
+.chart-container{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
+.chart-canvas{width:100%;height:140px;display:block}
+/* Sleep stages */
+.sleep-legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.sleep-legend span{font-size:9px;display:flex;align-items:center;gap:4px}
+.sleep-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+/* Report list */
+.report-item{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer}
+.report-item .rdate{font-size:9px;color:var(--sub);margin-bottom:3px}
+.report-item .rtitle{font-size:12px;color:var(--text)}
+.report-item .rtags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.rtag{font-size:9px;padding:2px 8px;border-radius:10px;background:var(--border);color:var(--sub)}
+/* Scan list */
+.scan-item{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.scan-name{font-size:12px;color:var(--text)}
+.scan-mac{font-size:9px;color:var(--sub);margin-top:2px}
+.scan-rssi{font-size:10px;color:var(--aurora)}
+/* Modal overlay */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;display:none;align-items:flex-end}
+.modal.show{display:flex}
+.modal-box{background:var(--panel);border-top:1px solid var(--border);border-radius:16px 16px 0 0;padding:20px 16px 30px;width:100%;max-height:85vh;overflow-y:auto}
+.modal-title{font-size:13px;letter-spacing:2px;color:var(--aurora);margin-bottom:14px;text-align:center}
+.modal-close{float:right;font-size:18px;color:var(--sub);cursor:pointer;margin-top:-4px}
+/* Symptom chips */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{padding:5px 12px;border-radius:20px;font-size:10px;border:1px solid var(--border);color:var(--sub);cursor:pointer;letter-spacing:0.5px}
+.chip.selected{border-color:var(--aurora);color:var(--aurora);background:rgba(0,255,179,0.1)}
+/* Scroll fade */
+.scroll-x{display:flex;overflow-x:auto;gap:8px;padding-bottom:4px}
+.scroll-x::-webkit-scrollbar{display:none}
+/* Empty state */
+.empty{text-align:center;padding:40px 20px;color:var(--sub);font-size:11px;letter-spacing:1px}
+.empty .big{font-size:36px;margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+<div class="logo">BIO<span>SPACE</span></div>
+<div class="hdr-right">
+<span class="batt-pill" id="battPill">--% [Batt]</span>
+<div class="conn-dot" id="connDot"></div>
+</div>
+</div>
+
+<!-- ALERT BANNER -->
+<div class="alert-banner" id="alertBanner">
+<span id="alertText"></span>
+<button class="log-btn" onclick="openLogModal('alert')">LOG NOW</button>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+<div class="tab active" onclick="showTab('dash')">DASHBOARD</div>
+<div class="tab" onclick="showTab('vitals')">VITALS</div>
+<div class="tab" onclick="showTab('space')">SPACE WX</div>
+<div class="tab" onclick="showTab('sleep')">SLEEP</div>
+<div class="tab" onclick="showTab('log')">LOG</div>
+<div class="tab" onclick="showTab('reports')">REPORTS</div>
+<div class="tab" onclick="showTab('connect')">DEVICE</div>
+</div>
+
+<!-- ================== DASHBOARD ================== -->
+<div class="section active" id="tab-dash">
+<div class="grid2">
+<div class="card aurora">
+<div class="clabel">HEART RATE</div>
+<div class="cval" id="d-hr">--</div>
+<div class="cunit">BPM</div>
+<div><span class="cbadge" id="d-hr-badge">--</span></div>
+<div class="mini-chart"><canvas id="chart-hr-mini"></canvas></div>
+</div>
+<div class="card solar">
+<div class="clabel">BLOOD PRESSURE</div>
+<div class="cval sm" id="d-bp">--/--</div>
+<div class="cunit">mmHg SYS/DIA</div>
+<div><span class="cbadge" id="d-bp-badge">--</span></div>
+</div>
+<div class="card">
+<div class="clabel">SpO2</div>
+<div class="cval" id="d-spo2">--</div>
+<div class="cunit">%</div>
+<div><span class="cbadge" id="d-spo2-badge">--</span></div>
+</div>
+<div class="card">
+<div class="clabel">HRV (RMSSD)</div>
+<div class="cval" id="d-hrv">--</div>
+<div class="cunit">ms</div>
+</div>
+<div class="card warn full" id="d-kp-card">
+<div class="clabel">GEOMAGNETIC KP INDEX</div>
+<div style="display:flex;align-items:baseline;gap:8px">
+<div class="cval" id="d-kp">--</div>
+<div style="font-size:11px;color:var(--sub)" id="d-kp-label">loading...</div>
+</div>
+<div class="kp-bar-bg"><div class="kp-bar-fill" id="d-kp-bar" style="width:0%;background:var(--ok)"></div></div>
+<div class="kp-ticks"><span>0</span><span>3</span><span>5</span><span>7</span><span>9</span></div>
+</div>
+<div class="card full">
+<div class="clabel">SOLAR WIND</div>
+<div style="display:flex;gap:16px;align-items:center">
+<div>
+<div style="font-size:10px;color:var(--sub)">SPEED</div>
+<div class="cval sm" id="d-wind">--</div>
+<div class="cunit">km/s</div>
+</div>
+<div>
+<div style="font-size:10px;color:var(--sub)">Bz (IMF)</div>
+<div class="cval sm" id="d-bz">--</div>
+<div class="cunit">nT</div>
+</div>
+<div style="text-align:center;flex:1">
+<div style="font-size:10px;color:var(--sub)">ORIENTATION</div>
+<div class="imf-arrow" id="d-orient">--</div>
+<div style="font-size:10px;color:var(--sub)" id="d-orient-label">--</div>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="clabel">STRESS</div>
+<div class="cval" id="d-stress">--</div>
+<div class="cunit">LEVEL 0-100</div>
+</div>
+<div class="card">
+<div class="clabel">SCHUMANN</div>
+<div class="cval sm" id="d-sr">7.83</div>
+<div class="cunit">Hz</div>
+</div>
+<div class="card full">
+<div class="clabel">ENVIRONMENT</div>
+<div style="display:flex;gap:16px">
+<div><div class="cunit">PRESSURE</div><div style="font-size:16px;font-weight:700" id="d-pressure">-- hPa</div></div>
+<div><div class="cunit">HUMIDITY</div><div style="font-size:16px;font-weight:700" id="d-humidity">--%</div></div>
+<div><div class="cunit">TEMP</div><div style="font-size:16px;font-weight:700" id="d-temp">--degC</div></div>
+</div>
+</div>
+</div>
+<button class="btn btn-solar btn-full" onclick="openLogModal('manual')">(*) LOG VITALS + SYMPTOMS</button>
+</div>
+
+<!-- ================== VITALS ================== -->
+<div class="section" id="tab-vitals">
+<div class="stitle">LIVE READINGS</div>
+<div class="grid2">
+<div class="card aurora">
+<div class="clabel">HEART RATE</div>
+<div class="cval" id="v-hr">--</div>
+<div class="cunit">BPM</div>
+<button class="btn btn-aurora" style="margin-top:8px;font-size:9px;padding:5px 10px" onclick="reqMeasure('hr')">MEASURE</button>
+</div>
+<div class="card solar">
+<div class="clabel">BLOOD PRESSURE</div>
+<div class="cval sm" id="v-bp">--/--</div>
+<div class="cunit">SYS/DIA mmHg</div>
+<button class="btn btn-solar" style="margin-top:8px;font-size:9px;padding:5px 10px" onclick="reqMeasure('bp')">MEASURE</button>
+</div>
+<div class="card">
+<div class="clabel">SpO2</div>
+<div class="cval" id="v-spo2">--</div><div class="cunit">%</div>
+<button class="btn btn-aurora" style="margin-top:8px;font-size:9px;padding:5px 10px" onclick="reqMeasure('spo2')">MEASURE</button>
+</div>
+<div class="card plasma">
+<div class="clabel">STRESS</div>
+<div class="cval" id="v-stress">--</div><div class="cunit">/100</div>
+<button class="btn btn-plasma" style="margin-top:8px;font-size:9px;padding:5px 10px" onclick="reqMeasure('stress')">MEASURE</button>
+</div>
+</div>
+<div class="stitle">HRV ANALYSIS</div>
+<div class="grid3">
+<div class="card"><div class="clabel">SDNN</div><div class="cval sm" id="v-sdnn">--</div><div class="cunit">ms</div></div>
+<div class="card"><div class="clabel">RMSSD</div><div class="cval sm" id="v-rmssd">--</div><div class="cunit">ms</div></div>
+<div class="card"><div class="clabel">pNN50</div><div class="cval sm" id="v-pnn50">--</div><div class="cunit">%</div></div>
+</div>
+<div class="stitle">ACTIVITY</div>
+<div class="grid3">
+<div class="card"><div class="clabel">STEPS</div><div class="cval sm" id="v-steps">--</div></div>
+<div class="card"><div class="clabel">KCAL</div><div class="cval sm" id="v-cal">--</div></div>
+<div class="card"><div class="clabel">DIST</div><div class="cval sm" id="v-dist">--</div><div class="cunit">m</div></div>
+</div>
+<div class="stitle">HEART RATE HISTORY (24H)</div>
+<div class="chart-container">
+<canvas class="chart-canvas" id="chart-hr-full"></canvas>
+</div>
+<div class="stitle">BLOOD PRESSURE HISTORY</div>
+<div class="chart-container">
+<canvas class="chart-canvas" id="chart-bp-full"></canvas>
+</div>
+<button class="btn btn-solar btn-full" onclick="reqMeasure('bp')"> TAKE BLOOD PRESSURE NOW</button>
+</div>
+
+<!-- ================== SPACE WEATHER ================== -->
+<div class="section" id="tab-space">
+<div class="stitle">GEOMAGNETIC ACTIVITY</div>
+<div class="card warn full" style="margin-bottom:12px">
+<div class="clabel">KP INDEX (REAL-TIME NOAA)</div>
+<div style="display:flex;align-items:baseline;gap:10px">
+<div class="cval" id="sw-kp">--</div>
+<div style="font-size:12px;color:var(--sub)" id="sw-kp-status">Loading...</div>
+</div>
+<div class="kp-bar-bg"><div class="kp-bar-fill" id="sw-kp-bar" style="width:0%"></div></div>
+<div class="kp-ticks"><span>0 Quiet</span><span>3</span><span>5 Storm</span><span>7</span><span>9 Extreme</span></div>
+<div style="font-size:9px;color:var(--sub);margin-top:6px" id="sw-kp-time">--</div>
+</div>
+<div class="stitle">SOLAR WIND (DSCOVR)</div>
+<div class="grid2">
+<div class="card solar"><div class="clabel">WIND SPEED</div><div class="cval" id="sw-speed">--</div><div class="cunit">km/s</div></div>
+<div class="card"><div class="clabel">DENSITY</div><div class="cval sm" id="sw-density">--</div><div class="cunit">p/cm3</div></div>
+<div class="card full">
+<div class="clabel">IMF Bz (SOUTHWARD = GEOEFFECTIVE)</div>
+<div style="display:flex;align-items:center;gap:16px">
+<div><div class="cval" id="sw-bz">--</div><div class="cunit">nT</div></div>
+<div style="text-align:center;flex:1">
+<div class="imf-arrow" id="sw-orient">--</div>
+<div style="font-size:11px" id="sw-orient-label">--</div>
+</div>
+</div>
+</div>
+</div>
+<div class="stitle">ENVIRONMENT</div>
+<div class="grid3">
+<div class="card"><div class="clabel">PRESSURE</div><div class="cval sm" id="sw-pressure">--</div><div class="cunit">hPa</div></div>
+<div class="card"><div class="clabel">HUMIDITY</div><div class="cval sm" id="sw-humidity">--</div><div class="cunit">%</div></div>
+<div class="card"><div class="clabel">SCHUMANN</div><div class="cval sm" id="sw-sr">7.83</div><div class="cunit">Hz</div></div>
+</div>
+<div class="stitle">KP HISTORY</div>
+<div class="chart-container"><canvas class="chart-canvas" id="chart-kp"></canvas></div>
+<div class="stitle">CORRELATION CHART</div>
+<div class="chart-container"><canvas class="chart-canvas" id="chart-corr"></canvas></div>
+</div>
+
+<!-- ================== SLEEP ================== -->
+<div class="section" id="tab-sleep">
+<div class="stitle">LAST NIGHT SLEEP</div>
+<div class="grid2">
+<div class="card aurora"><div class="clabel">TOTAL SLEEP</div><div class="cval sm" id="sl-total">--h --m</div></div>
+<div class="card danger"><div class="clabel">APNEA EVENTS</div><div class="cval" id="sl-apnea">--</div><div class="cunit">DETECTED DROPS</div></div>
+<div class="card"><div class="clabel">AVG SpO2</div><div class="cval" id="sl-spo2">--%</div></div>
+<div class="card"><div class="clabel">LOWEST SpO2</div><div class="cval" id="sl-spo2-min">--%</div></div>
+</div>
+<div class="stitle">SLEEP STAGES</div>
+<div class="sleep-legend">
+<span><span class="sleep-dot" style="background:#7B2FBE"></span> REM</span>
+<span><span class="sleep-dot" style="background:#00FFB3"></span> DEEP</span>
+<span><span class="sleep-dot" style="background:#1E4E8C"></span> LIGHT</span>
+<span><span class="sleep-dot" style="background:#FF4757"></span> AWAKE</span>
+</div>
+<div class="chart-container"><canvas class="chart-canvas" id="chart-sleep"></canvas></div>
+<div class="stitle">SpO2 DURING SLEEP</div>
+<div class="chart-container"><canvas class="chart-canvas" id="chart-sleep-spo2"></canvas></div>
+<div class="stitle">APNEA EVENTS</div>
+<div id="apnea-list"><div class="empty"><div class="big">zzz</div>No sleep data yet.<br/>Wear watch during sleep.</div></div>
+<button class="btn btn-plasma btn-full" style="margin-top:10px" onclick="reqMeasure('sleep')">SYNC SLEEP DATA</button>
+</div>
+
+<!-- ================== LOG ================== -->
+<div class="section" id="tab-log">
+<div class="stitle">LOG VITALS & SYMPTOMS</div>
+<div class="log-form">
+<div class="ftitle">MANUAL ENTRY</div>
+<div class="log-row">
+<span class="log-label">BP SYS</span>
+<input class="log-val" id="log-sys" type="number" placeholder="120" inputmode="numeric"/>
+</div>
+<div class="log-row">
+<span class="log-label">BP DIA</span>
+<input class="log-val" id="log-dia" type="number" placeholder="80" inputmode="numeric"/>
+</div>
+<div class="log-row">
+<span class="log-label">HEART RATE</span>
+<input class="log-val" id="log-hr" type="number" placeholder="72" inputmode="numeric"/>
+</div>
+<div class="log-row">
+<span class="log-label">SpO2</span>
+<input class="log-val" id="log-spo2" type="number" placeholder="98" inputmode="numeric"/>
+</div>
+<div class="log-row">
+<span class="log-label">STRESS</span>
+<input class="log-val" id="log-stress" type="number" placeholder="0-100" inputmode="numeric"/>
+</div>
+<div style="font-size:10px;color:var(--sub);margin:8px 0 4px;letter-spacing:1px">SYMPTOMS</div>
+<div class="chips" id="symptom-chips">
+<div class="chip" onclick="toggleChip(this)">Headache</div>
+<div class="chip" onclick="toggleChip(this)">Fatigue</div>
+<div class="chip" onclick="toggleChip(this)">Dizziness</div>
+<div class="chip" onclick="toggleChip(this)">Heart Pounding</div>
+<div class="chip" onclick="toggleChip(this)">Anxiety</div>
+<div class="chip" onclick="toggleChip(this)">Chest Pressure</div>
+<div class="chip" onclick="toggleChip(this)">Brain Fog</div>
+<div class="chip" onclick="toggleChip(this)">Shortness of Breath</div>
+<div class="chip" onclick="toggleChip(this)">Tinnitus</div>
+<div class="chip" onclick="toggleChip(this)">Nausea</div>
+<div class="chip" onclick="toggleChip(this)">Joint Pain</div>
+<div class="chip" onclick="toggleChip(this)">Vision Changes</div>
+</div>
+<div style="font-size:10px;color:var(--sub);margin:8px 0 4px;letter-spacing:1px">NOTES</div>
+<textarea class="log-input" id="log-notes" rows="3" placeholder="Describe how you feel..."></textarea>
+<div class="log-btn-row">
+<button class="btn btn-aurora btn-full" onclick="saveLog()">SAVE LOG ENTRY</button>
+<button class="btn btn-solar" onclick="autoFillFromWatch()">AUTO-FILL</button>
+</div>
+</div>
+<div class="stitle">RECENT ENTRIES</div>
+<div id="log-list"><div class="empty"><div class="big">[List]</div>No entries yet.</div></div>
+</div>
+
+<!-- ================== REPORTS ================== -->
+<div class="section" id="tab-reports">
+<div class="stitle">GENERATE REPORT</div>
+<div class="log-form">
+<div class="ftitle">REPORT OPTIONS</div>
+<div class="log-btn-row">
+<button class="btn btn-aurora btn-full" onclick="generateReport('daily')">DAILY REPORT</button>
+<button class="btn btn-solar btn-full" onclick="generateReport('weekly')">WEEKLY</button>
+</div>
+<div class="log-btn-row" style="margin-top:8px">
+<button class="btn btn-plasma btn-full" onclick="generateReport('correlation')">SPACE WX CORRELATION</button>
+</div>
+<div class="log-btn-row" style="margin-top:8px">
+<button class="btn btn-warn btn-full" onclick="generateReport('sleep')">SLEEP + APNEA REPORT</button>
+</div>
+</div>
+<div id="report-output"></div>
+<div class="stitle">SAVED REPORTS</div>
+<div id="report-list"><div class="empty"><div class="big">[Chart]</div>No reports yet.</div></div>
+</div>
+
+<!-- ================== DEVICE / CONNECT ================== -->
+<div class="section" id="tab-connect">
+<div class="stitle">BP DOCTOR FIT Y007</div>
+<div class="card full aurora" style="margin-bottom:12px">
+<div class="clabel">DEVICE STATUS</div>
+<div class="cval sm" id="dev-status">Disconnected</div>
+<div style="font-size:10px;color:var(--sub);margin-top:4px" id="dev-mac">MAC: C0:29:AB:60:4D:10</div>
+<div style="font-size:10px;color:var(--sub)" id="dev-fw">Firmware: --</div>
+<div style="font-size:10px;color:var(--sub)" id="dev-batt">Battery: --%</div>
+</div>
+<div class="log-btn-row" style="margin-bottom:12px">
+<button class="btn btn-aurora btn-full" onclick="scanDevices()">SCAN FOR WATCH</button>
+<button class="btn btn-solar btn-full" onclick="connectKnown()">CONNECT Y007</button>
+</div>
+<button class="btn btn-warn btn-full" style="margin-bottom:12px" onclick="disconnectWatch()">DISCONNECT</button>
+<div class="stitle">SCAN RESULTS</div>
+<div id="scan-list"><div class="empty"><div class="big">[Signal]</div>Tap SCAN to find devices.</div></div>
+<div class="stitle">SERVICES DISCOVERED</div>
+<div id="services-list" style="font-size:10px;color:var(--sub);word-break:break-all;padding:8px;background:var(--panel);border:1px solid var(--border);border-radius:8px;min-height:40px">--</div>
+<div class="stitle" style="margin-top:12px">NOTIFICATIONS</div>
+<div class="log-form">
+<div class="ftitle">SEND TO WATCH</div>
+<input class="log-val" id="watch-msg" placeholder="Enter message..." style="margin-bottom:8px"/>
+<button class="btn btn-aurora btn-full" onclick="sendWatchMsg()">SEND TO WATCH</button>
+</div>
+</div>
+
+<!-- ================== LOG MODAL ================== -->
+<div class="modal" id="logModal">
+<div class="modal-box">
+<span class="modal-close" onclick="closeLogModal()"></span>
+<div class="modal-title">LOG VITALS NOW</div>
+<div style="font-size:10px;color:var(--solar);text-align:center;margin-bottom:12px" id="modal-reason">Space weather event detected</div>
+<div class="log-row"><span class="log-label">BP SYS</span><input class="log-val" id="m-sys" type="number" inputmode="numeric" placeholder="120"/></div>
+<div class="log-row"><span class="log-label">BP DIA</span><input class="log-val" id="m-dia" type="number" inputmode="numeric" placeholder="80"/></div>
+<div class="log-row"><span class="log-label">HR</span><input class="log-val" id="m-hr" type="number" inputmode="numeric" placeholder="72"/></div>
+<div class="log-row"><span class="log-label">SpO2</span><input class="log-val" id="m-spo2" type="number" inputmode="numeric" placeholder="98"/></div>
+<div style="font-size:10px;color:var(--sub);margin:8px 0 4px;letter-spacing:1px">HOW DO YOU FEEL?</div>
+<div class="chips" id="modal-chips">
+<div class="chip" onclick="toggleChip(this)">Headache</div>
+<div class="chip" onclick="toggleChip(this)">Fatigue</div>
+<div class="chip" onclick="toggleChip(this)">Dizziness</div>
+<div class="chip" onclick="toggleChip(this)">Heart Pounding</div>
+<div class="chip" onclick="toggleChip(this)">Anxiety</div>
+<div class="chip" onclick="toggleChip(this)">Chest Pressure</div>
+<div class="chip" onclick="toggleChip(this)">Brain Fog</div>
+<div class="chip" onclick="toggleChip(this)">Shortness of Breath</div>
+<div class="chip" onclick="toggleChip(this)">Nausea</div>
+<div class="chip" onclick="toggleChip(this)">Tinnitus</div>
+</div>
+<textarea class="log-input" id="m-notes" rows="2" placeholder="Additional notes..."></textarea>
+<div class="log-btn-row" style="margin-top:10px">
+<button class="btn btn-solar btn-full" onclick="autoFillModal()">AUTO-FILL FROM WATCH</button>
+</div>
+<div class="log-btn-row">
+<button class="btn btn-aurora btn-full" onclick="saveModalLog()">SAVE ENTRY</button>
+</div>
+</div>
+</div>
+
+<script>
+// =======================================================
+//  STATE
+// =======================================================
+const state = {
+connected: false,
+hr: null, hrv: null, sdnn: null, rmssd: null, pnn50: null,
+bp: {sys: null, dia: null, map: null, pulse: null},
+spo2: null, stress: null, battery: null,
+steps: null, calories: null, dist: null,
+kp: null, wind: null, bz: null, density: null, orientation: 'N/A',
+pressure: null, humidity: null, temp: null, schumann: 7.83,
+sleep: null, apneas: 0,
+logs: JSON.parse(localStorage.getItem('bs_logs') || '[]'),
+reports: JSON.parse(localStorage.getItem('bs_reports') || '[]'),
+hrHistory: [], bpHistory: [], kpHistory: [],
+modalReason: '',
+};
+
+// =======================================================
+//  NATIVE BRIDGE
+// =======================================================
+window.onNativeData = function(data) {
+switch(data.type) {
+case 'status':       handleStatus(data); break;
+case 'hr':           handleHR(data); break;
+case 'bp':
+case 'bp_vendor':    handleBP(data); break;
+case 'spo2':         handleSpo2(data); break;
+case 'hrv':
+case 'hrv_vendor':   handleHRV(data); break;
+case 'stress':       handleStress(data); break;
+case 'battery':      handleBattery(data); break;
+case 'activity':     handleActivity(data); break;
+case 'sleep':        handleSleep(data); break;
+case 'firmware':     document.getElementById('dev-fw').textContent = 'Firmware: ' + data.version; break;
+case 'services':     document.getElementById('services-list').textContent = data.list; break;
+case 'scan_result':  addScanResult(data); break;
+case 'kp':           handleKp(data); break;
+case 'solar_wind':   handleSolarWind(data); break;
+case 'environment':  handleEnvironment(data); break;
+case 'schumann':     handleSchumann(data); break;
+case 'alert':        handleAlert(data); break;
+case 'raw':          console.log('RAW:', data.hex); break;
+}
+};
+
+// =======================================================
+//  HANDLERS
+// =======================================================
+function handleStatus(d) {
+state.connected = d.status === 'connected';
+document.getElementById('connDot').className = 'conn-dot' + (state.connected ? ' on' : '');
+document.getElementById('dev-status').textContent = d.status.charAt(0).toUpperCase() + d.status.slice(1);
+if (d.mac) document.getElementById('dev-mac').textContent = 'MAC: ' + d.mac;
+}
+
+function handleHR(d) {
+state.hr = d.hr;
+set('d-hr', d.hr); set('v-hr', d.hr);
+setBadge('d-hr-badge', hrStatus(d.hr));
+state.hrHistory.push({t: d.ts, v: d.hr});
+if (state.hrHistory.length > 120) state.hrHistory.shift();
+drawMiniLine('chart-hr-mini', state.hrHistory.map(x=>x.v), '#00FFB3');
+drawFullChart('chart-hr-full', state.hrHistory, 'HR', '#00FFB3', 40, 180);
+}
+
+function handleBP(d) {
+state.bp = {sys: d.sys, dia: d.dia, map: d.map||null, pulse: d.pulse||-1};
+const bp = d.sys + '/' + d.dia;
+set('d-bp', bp); set('v-bp', bp);
+setBadge('d-bp-badge', bpStatus(d.sys, d.dia));
+state.bpHistory.push({t: d.ts, sys: d.sys, dia: d.dia});
+if (state.bpHistory.length > 60) state.bpHistory.shift();
+drawBPChart('chart-bp-full', state.bpHistory);
+}
+
+function handleSpo2(d) {
+state.spo2 = d.spo2;
+set('d-spo2', d.spo2); set('v-spo2', d.spo2);
+setBadge('d-spo2-badge', spo2Status(d.spo2));
+}
+
+function handleHRV(d) {
+state.sdnn = d.sdnn; state.rmssd = d.rmssd; state.pnn50 = d.pnn50;
+state.hrv = d.rmssd;
+set('d-hrv', d.rmssd); set('v-sdnn', d.sdnn); set('v-rmssd', d.rmssd); set('v-pnn50', d.pnn50);
+}
+
+function handleStress(d) {
+state.stress = d.level;
+set('d-stress', d.level); set('v-stress', d.level);
+}
+
+function handleBattery(d) {
+state.battery = d.level;
+document.getElementById('battPill').textContent = d.level + '% [Batt]';
+document.getElementById('dev-batt').textContent = 'Battery: ' + d.level + '%';
+}
+
+function handleActivity(d) {
+state.steps = d.steps; state.calories = d.calories; state.dist = d.dist_m;
+set('v-steps', d.steps); set('v-cal', d.calories); set('v-dist', d.dist_m);
+}
+
+function handleSleep(d) {
+state.sleep = d.stages; state.apneas = d.apnea_events;
+set('sl-apnea', d.apnea_events);
+if (d.stages && d.stages.length) {
+set('sl-total', Math.floor(d.stages.length / 60) + 'h ' + (d.stages.length % 60) + 'm');
+const spo2vals = d.stages.filter(s=>s.spo2).map(s=>s.spo2);
+if (spo2vals.length) {
+set('sl-spo2', Math.round(spo2vals.reduce((a,b)=>a+b,0)/spo2vals.length) + '%');
+set('sl-spo2-min', Math.min(...spo2vals) + '%');
+}
+drawSleepChart(d.stages);
+renderApneaList(d.stages, d.apnea_events);
+}
+}
+
+function handleKp(d) {
+state.kp = d.kp;
+const kp = parseFloat(d.kp).toFixed(1);
+set('d-kp', kp); set('sw-kp', kp);
+const pct = Math.min(100, (d.kp / 9) * 100);
+const color = d.kp < 4 ? 'var(--ok)' : d.kp < 6 ? 'var(--warn)' : 'var(--danger)';
+['d-kp-bar','sw-kp-bar'].forEach(id => {
+const el = document.getElementById(id);
+if (el) { el.style.width = pct + '%'; el.style.background = color; }
+});
+const label = d.kp < 1 ? 'Quiet' : d.kp < 4 ? 'Unsettled' : d.kp < 5 ? 'Active' : d.kp < 6 ? 'Minor Storm' : d.kp < 7 ? 'Moderate Storm' : d.kp < 8 ? 'Strong Storm' : 'Severe Storm';
+set('d-kp-label', label); set('sw-kp-status', label);
+if (d.time) set('sw-kp-time', 'Updated: ' + d.time);
+['d-kp-card'].forEach(id => {
+const el = document.getElementById(id);
+if (el) el.className = 'card full ' + (d.kp >= 6 ? 'danger' : d.kp >= 4 ? 'warn' : '');
+});
+state.kpHistory.push({t: d.ts, v: d.kp});
+if (state.kpHistory.length > 50) state.kpHistory.shift();
+drawFullChart('chart-kp', state.kpHistory, 'Kp', '#FFD93D', 0, 9);
+drawCorrChart();
+}
+
+function handleSolarWind(d) {
+state.wind = d.speed; state.bz = d.bz; state.density = d.density;
+state.orientation = d.orientation;
+set('d-wind', Math.round(d.speed)); set('sw-speed', Math.round(d.speed));
+set('d-bz', d.bz.toFixed(1)); set('sw-bz', d.bz.toFixed(1));
+set('sw-density', d.density.toFixed(1));
+const arrow = d.bz < 0 ? '' : '';
+const label = d.bz < 0 ? 'SOUTHWARD (!)' : 'NORTHWARD ';
+const color = d.bz < -5 ? 'var(--danger)' : d.bz < 0 ? 'var(--warn)' : 'var(--ok)';
+['d-orient','sw-orient'].forEach(id => set(id, arrow));
+['d-orient-label','sw-orient-label'].forEach(id => { const el=document.getElementById(id); if(el){el.textContent=label;el.style.color=color;}});
+}
+
+function handleEnvironment(d) {
+state.pressure = d.pressure_hpa; state.humidity = d.humidity; state.temp = d.temp_c;
+set('d-pressure', d.pressure_hpa.toFixed(1) + ' hPa'); set('sw-pressure', d.pressure_hpa.toFixed(1));
+set('d-humidity', d.humidity + '%'); set('sw-humidity', d.humidity);
+set('d-temp', d.temp_c.toFixed(1) + 'degC');
+}
+
+function handleSchumann(d) {
+state.schumann = d.frequency;
+set('d-sr', d.frequency); set('sw-sr', d.frequency);
+}
+
+function handleAlert(d) {
+const banner = document.getElementById('alertBanner');
+const text   = document.getElementById('alertText');
+const src    = d.source === 'kp' ? 'Kp=' + d.kp : 'Wind=' + Math.round(d.speed||0) + ' Bz=' + (d.bz||0).toFixed(1);
+text.textContent = (d.level === 'danger' ? '(!) DANGER -- ' : '(*) WARNING -- ') + src;
+banner.className = 'alert-banner show ' + d.level;
+state.modalReason = text.textContent;
+}
+
+function addScanResult(d) {
+const list = document.getElementById('scan-list');
+if (list.querySelector('.empty')) list.innerHTML = '';
+const existing = list.querySelector('[data-mac="' + d.mac + '"]');
+if (existing) { existing.querySelector('.scan-rssi').textContent = d.rssi + ' dBm'; return; }
+const div = document.createElement('div');
+div.className = 'scan-item'; div.setAttribute('data-mac', d.mac);
+div.innerHTML = '<div><div class="scan-name">' + (d.name||'Unknown') + '</div><div class="scan-mac">' + d.mac + '</div></div><span class="scan-rssi">' + d.rssi + ' dBm</span>';
+div.onclick = () => { if (window.AndroidBridge) AndroidBridge.connectWatch(d.mac); };
+list.prepend(div);
+}
+
+// =======================================================
+//  ACTIONS
+// =======================================================
+function scanDevices() { if (window.AndroidBridge) AndroidBridge.startScan(); }
+function connectKnown() { if (window.AndroidBridge) AndroidBridge.connectWatch('C0:29:AB:60:4D:10'); }
+function disconnectWatch() { if (window.AndroidBridge) AndroidBridge.disconnectWatch(); }
+
+function reqMeasure(type) {
+if (!window.AndroidBridge) return;
+switch(type) {
+case 'bp':     AndroidBridge.requestBP(); break;
+case 'hrv':    AndroidBridge.requestHRV(); break;
+case 'stress': AndroidBridge.requestStress(); break;
+case 'spo2':   AndroidBridge.requestSpo2(); break;
+case 'sleep':  AndroidBridge.requestSleep(); break;
+}
+}
+
+function sendWatchMsg() {
+const msg = document.getElementById('watch-msg').value;
+if (!msg) return;
+if (window.AndroidBridge) AndroidBridge.sendWatchNotif(msg);
+}
+
+function showTab(id) {
+document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+document.getElementById('tab-' + id).classList.add('active');
+event.target.classList.add('active');
+}
+
+function toggleChip(el) { el.classList.toggle('selected'); }
+
+function getSelectedChips(containerId) {
+return Array.from(document.querySelectorAll('#' + containerId + ' .chip.selected')).map(c => c.textContent);
+}
+
+// =======================================================
+//  LOGGING
+// =======================================================
+function autoFillFromWatch() {
+if (state.bp.sys) { document.getElementById('log-sys').value = state.bp.sys; document.getElementById('log-dia').value = state.bp.dia; }
+if (state.hr) document.getElementById('log-hr').value = state.hr;
+if (state.spo2) document.getElementById('log-spo2').value = state.spo2;
+if (state.stress) document.getElementById('log-stress').value = state.stress;
+}
+
+function autoFillModal() {
+if (state.bp.sys) { document.getElementById('m-sys').value = state.bp.sys; document.getElementById('m-dia').value = state.bp.dia; }
+if (state.hr) document.getElementById('m-hr').value = state.hr;
+if (state.spo2) document.getElementById('m-spo2').value = state.spo2;
+}
+
+function saveLog() {
+const entry = buildEntry(
+document.getElementById('log-sys').value,
+document.getElementById('log-dia').value,
+document.getElementById('log-hr').value,
+document.getElementById('log-spo2').value,
+document.getElementById('log-stress').value,
+getSelectedChips('symptom-chips'),
+document.getElementById('log-notes').value,
+'manual'
+);
+pushLog(entry);
+document.querySelectorAll('#symptom-chips .chip').forEach(c=>c.classList.remove('selected'));
+document.getElementById('log-notes').value = '';
+alert('Entry saved!');
+}
+
+function saveModalLog() {
+const entry = buildEntry(
+document.getElementById('m-sys').value,
+document.getElementById('m-dia').value,
+document.getElementById('m-hr').value,
+document.getElementById('m-spo2').value,
+'',
+getSelectedChips('modal-chips'),
+document.getElementById('m-notes').value,
+state.modalReason || 'space_weather'
+);
+pushLog(entry);
+closeLogModal();
+alert('Entry saved!');
+}
+
+function buildEntry(sys, dia, hr, spo2, stress, symptoms, notes, trigger) {
+return {
+ts: Date.now(),
+dt: new Date().toLocaleString(),
+sys: sys||null, dia: dia||null, hr: hr||null,
+spo2: spo2||null, stress: stress||null,
+symptoms, notes, trigger,
+env: { kp: state.kp, wind: state.wind, bz: state.bz,
+pressure: state.pressure, humidity: state.humidity, schumann: state.schumann }
+};
+}
+
+function pushLog(entry) {
+state.logs.unshift(entry);
+if (state.logs.length > 500) state.logs.pop();
+localStorage.setItem('bs_logs', JSON.stringify(state.logs));
+renderLogList();
+}
+
+function renderLogList() {
+const list = document.getElementById('log-list');
+if (!state.logs.length) { list.innerHTML = '<div class="empty"><div class="big">[List]</div>No entries yet.</div>'; return; }
+list.innerHTML = state.logs.slice(0, 20).map(e => `
+<div class="report-item">
+<div class="rdate">${e.dt}  ${e.trigger}</div>
+<div class="rtitle">BP ${e.sys||'?'}/${e.dia||'?'}  HR ${e.hr||'?'}  SpO2 ${e.spo2||'?'}%</div>
+<div class="rtags">${(e.symptoms||[]).map(s=>'<span class="rtag">'+s+'</span>').join('')}</div>
+${e.notes?'<div style="font-size:10px;color:var(--sub);margin-top:4px">'+e.notes+'</div>':''}
+<div style="font-size:9px;color:var(--sub);margin-top:4px">Kp:${(e.env&&e.env.kp)||'?'} Wind:${(e.env&&Math.round(e.env.wind))||'?'} Bz:${(e.env&&e.env.bz)||'?'}</div>
+</div>`).join('');
+}
+
+// =======================================================
+//  REPORTS
+// =======================================================
+function generateReport(type) {
+const out = document.getElementById('report-output');
+if (!state.logs.length) { out.innerHTML = '<div class="empty">No log data yet.</div>'; return; }
+let html = '';
+const now = Date.now();
+const dayMs = 86400000;
+if (type === 'daily') {
+const today = state.logs.filter(l => now - l.ts < dayMs);
+html = reportHTML('Daily Report', today, state);
+} else if (type === 'weekly') {
+const week = state.logs.filter(l => now - l.ts < 7 * dayMs);
+html = reportHTML('Weekly Report', week, state);
+} else if (type === 'correlation') {
+html = correlationReport(state.logs, state);
+} else if (type === 'sleep') {
+html = sleepReport(state);
+}
+out.innerHTML = html;
+const saved = { ts: Date.now(), dt: new Date().toLocaleDateString(), type, html };
+state.reports.unshift(saved);
+localStorage.setItem('bs_reports', JSON.stringify(state.reports.slice(0,50)));
+renderReportList();
+}
+
+function reportHTML(title, logs, state) {
+if (!logs.length) return '<div class="empty">No data for this period.</div>';
+const bps = logs.filter(l=>l.sys&&l.dia);
+const hrs  = logs.filter(l=>l.hr);
+const syms = {};
+logs.forEach(l=>(l.symptoms||[]).forEach(s=>{syms[s]=(syms[s]||0)+1;}));
+const avgSys = bps.length ? Math.round(bps.reduce((a,l)=>a+parseFloat(l.sys),0)/bps.length) : '?';
+const avgDia = bps.length ? Math.round(bps.reduce((a,l)=>a+parseFloat(l.dia),0)/bps.length) : '?';
+const avgHr  = hrs.length  ? Math.round(hrs.reduce((a,l)=>a+parseFloat(l.hr),0)/hrs.length)   : '?';
+const symList = Object.entries(syms).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k}(${v})`).join(', ');
+return `<div class="chart-container">
+<div class="stitle">${title} -- ${new Date().toLocaleDateString()}</div>
+<div class="grid3" style="margin:0 0 10px">
+<div class="card"><div class="clabel">AVG BP</div><div class="cval sm">${avgSys}/${avgDia}</div></div>
+<div class="card"><div class="clabel">AVG HR</div><div class="cval sm">${avgHr}</div></div>
+<div class="card"><div class="clabel">ENTRIES</div><div class="cval sm">${logs.length}</div></div>
+</div>
+<div style="font-size:10px;color:var(--sub);margin-bottom:6px">TOP SYMPTOMS: <span style="color:var(--warn)">${symList||'None'}</span></div>
+<div style="font-size:10px;color:var(--sub)">Space Weather: Avg Kp ${avgKp(logs)}  Avg Wind ${avgWind(logs)} km/s</div>
+</div>`;
+}
+
+function correlationReport(logs, state) {
+const events = logs.filter(l=>l.env&&l.env.kp>=4);
+return `<div class="chart-container">
+<div class="stitle">SPACE WX CORRELATION REPORT</div>
+<div style="font-size:11px;color:var(--text);margin-bottom:10px">
+During ${events.length} high-Kp events (Kp4):
+</div>
+${events.map(e=>`
+<div class="report-item">
+<div class="rdate">${e.dt}</div>
+<div class="rtitle">BP ${e.sys||'?'}/${e.dia||'?'}  HR ${e.hr||'?'}</div>
+<div style="font-size:10px;color:var(--warn)">Kp: ${e.env.kp}  Wind: ${Math.round(e.env.wind||0)} km/s  Bz: ${(e.env.bz||0).toFixed(1)} nT</div>
+<div class="rtags">${(e.symptoms||[]).map(s=>'<span class="rtag">'+s+'</span>').join('')}</div>
+</div>`).join('')}
+</div>`;
+}
+
+function sleepReport(state) {
+return `<div class="chart-container">
+<div class="stitle">SLEEP + APNEA REPORT</div>
+<div class="grid2" style="margin:0 0 10px">
+<div class="card danger"><div class="clabel">APNEA EVENTS</div><div class="cval">${state.apneas}</div><div class="cunit">DETECTED DROPS</div></div>
+<div class="card"><div class="clabel">MIN SpO2</div><div class="cval" id="rep-spo2-min">--</div></div>
+</div>
+<div style="font-size:10px;color:var(--sub)">
+Apnea events are inferred from SpO2 drops below 90% during sleep combined with awake-stage detection.<br/>
+This is for personal monitoring only -- consult a physician for clinical diagnosis.
+</div>
+</div>`;
+}
+
+function avgKp(logs) {
+const kps = logs.filter(l=>l.env&&l.env.kp!=null).map(l=>parseFloat(l.env.kp));
+return kps.length ? (kps.reduce((a,b)=>a+b,0)/kps.length).toFixed(1) : '?';
+}
+function avgWind(logs) {
+const ws = logs.filter(l=>l.env&&l.env.wind).map(l=>parseFloat(l.env.wind));
+return ws.length ? Math.round(ws.reduce((a,b)=>a+b,0)/ws.length) : '?';
+}
+
+function renderReportList() {
+const list = document.getElementById('report-list');
+if (!state.reports.length) return;
+list.innerHTML = state.reports.slice(0,10).map(r=>`
+<div class="report-item" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+<div class="rdate">${r.dt}</div>
+<div class="rtitle">${r.type.charAt(0).toUpperCase()+r.type.slice(1)} Report</div>
+</div>
+<div style="display:none">${r.html}</div>`).join('');
+}
+
+// =======================================================
+//  MODAL
+// =======================================================
+function openLogModal(reason) {
+state.modalReason = reason;
+document.getElementById('modal-reason').textContent =
+reason === 'manual' ? 'Manual entry' : ('Triggered by: ' + reason);
+document.getElementById('logModal').classList.add('show');
+}
+function closeLogModal() { document.getElementById('logModal').classList.remove('show'); }
+
+// =======================================================
+//  STATUS HELPERS
+// =======================================================
+function hrStatus(hr) {
+if (!hr) return {text:'--',cls:'badge-ok'};
+if (hr < 50) return {text:'BRADYCARDIA',cls:'badge-danger'};
+if (hr > 100) return {text:'TACHYCARDIA',cls:'badge-warn'};
+return {text:'NORMAL',cls:'badge-ok'};
+}
+function bpStatus(sys, dia) {
+if (!sys) return {text:'--',cls:'badge-ok'};
+if (sys >= 180 || dia >= 120) return {text:'CRISIS',cls:'badge-danger'};
+if (sys >= 140 || dia >= 90)  return {text:'HIGH',cls:'badge-warn'};
+if (sys >= 130 || dia >= 80)  return {text:'ELEVATED',cls:'badge-warn'};
+if (sys < 90  || dia < 60)    return {text:'LOW',cls:'badge-danger'};
+return {text:'NORMAL',cls:'badge-ok'};
+}
+function spo2Status(v) {
+if (!v) return {text:'--',cls:'badge-ok'};
+if (v < 90) return {text:'CRITICAL',cls:'badge-danger'};
+if (v < 94) return {text:'LOW',cls:'badge-warn'};
+return {text:'NORMAL',cls:'badge-ok'};
+}
+function setBadge(id, s) {
+const el = document.getElementById(id);
+if (el) { el.textContent = s.text; el.className = 'cbadge ' + s.cls; }
+}
+
+// =======================================================
+//  CANVAS CHARTS
+// =======================================================
+function drawMiniLine(canvasId, vals, color) {
+const c = document.getElementById(canvasId);
+if (!c || vals.length < 2) return;
+const ctx = c.getContext('2d');
+c.width = c.offsetWidth; c.height = c.offsetHeight;
+const min = Math.min(...vals) - 5, max = Math.max(...vals) + 5;
+const w = c.width, h = c.height;
+ctx.clearRect(0,0,w,h);
+ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
+ctx.beginPath();
+vals.forEach((v,i) => {
+const x = (i/(vals.length-1))*w;
+const y = h - ((v-min)/(max-min))*h;
+i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+});
+ctx.stroke();
+}
+
+function drawFullChart(canvasId, history, label, color, yMin, yMax) {
+const c = document.getElementById(canvasId);
+if (!c || history.length < 2) return;
+const ctx = c.getContext('2d');
+c.width = c.offsetWidth; c.height = c.offsetHeight;
+const vals = history.map(h=>h.v);
+const min = yMin !== undefined ? yMin : Math.min(...vals) - 5;
+const max = yMax !== undefined ? yMax : Math.max(...vals) + 5;
+const w = c.width, h = c.height, pad = 20;
+ctx.clearRect(0,0,w,h);
+// Grid
+ctx.strokeStyle = '#1E1E35'; ctx.lineWidth = 1;
+[0.25,0.5,0.75].forEach(frac => {
+ctx.beginPath(); ctx.moveTo(pad,h*frac); ctx.lineTo(w,h*frac); ctx.stroke();
+});
+// Fill
+const gradient = ctx.createLinearGradient(0,0,0,h);
+gradient.addColorStop(0, color + '33');
+gradient.addColorStop(1, color + '00');
+ctx.beginPath();
+vals.forEach((v,i) => {
+const x = pad + (i/(vals.length-1))*(w-pad);
+const y = h - ((v-min)/(max-min))*(h-pad);
+i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+});
+ctx.lineTo(w, h); ctx.lineTo(pad,h); ctx.closePath();
+ctx.fillStyle = gradient; ctx.fill();
+// Line
+ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+ctx.beginPath();
+vals.forEach((v,i) => {
+const x = pad + (i/(vals.length-1))*(w-pad);
+const y = h - ((v-min)/(max-min))*(h-pad);
+i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+});
+ctx.stroke();
+// Labels
+ctx.fillStyle = '#8888AA'; ctx.font = '9px Courier New';
+ctx.fillText(max, 0, 10); ctx.fillText(min, 0, h-2);
+}
+
+function drawBPChart(canvasId, history) {
+const c = document.getElementById(canvasId);
+if (!c || history.length < 2) return;
+const ctx = c.getContext('2d');
+c.width = c.offsetWidth; c.height = c.offsetHeight;
+const w = c.width, h = c.height;
+ctx.clearRect(0,0,w,h);
+const allVals = history.map(h=>h.sys).concat(history.map(h=>h.dia));
+const min = Math.min(...allVals) - 5, max = Math.max(...allVals) + 5;
+['sys','dia'].forEach((key, ki) => {
+const color = ki===0 ? '#FF6B35' : '#7B2FBE';
+ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+ctx.beginPath();
+history.forEach((p,i) => {
+const x = (i/(history.length-1))*w;
+const y = h - ((p[key]-min)/(max-min))*h;
+i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+});
+ctx.stroke();
+});
+ctx.fillStyle = '#8888AA'; ctx.font = '9px Courier New';
+ctx.fillText('SYS', 4, 12); ctx.fillStyle='#7B2FBE'; ctx.fillText('DIA', 30, 12);
+}
+
+function drawSleepChart(stages) {
+const c = document.getElementById('chart-sleep');
+if (!c || !stages.length) return;
+const ctx = c.getContext('2d');
+c.width = c.offsetWidth; c.height = c.offsetHeight;
+const w = c.width, h = c.height;
+ctx.clearRect(0,0,w,h);
+const colors = ['#FF4757','#1E4E8C','#00FFB3','#7B2FBE']; // awake,light,deep,REM
+const bw = w / stages.length;
+stages.forEach((s,i) => {
+ctx.fillStyle = colors[Math.min(s.s, 3)] + 'CC';
+const bh = ((s.s+1)/4)*h;
+ctx.fillRect(i*bw, h-bh, bw-1, bh);
+});
+}
+
+function drawCorrChart() {
+const c = document.getElementById('chart-corr');
+if (!c || state.kpHistory.length < 2) return;
+drawFullChart('chart-corr', state.kpHistory, 'Kp', '#FFD93D', 0, 9);
+}
+
+function renderApneaList(stages, count) {
+const list = document.getElementById('apnea-list');
+if (!count) { list.innerHTML = '<div class="empty"><div class="big"></div>No apnea events detected.</div>'; return; }
+let prev = 98; const events = [];
+stages.forEach((s,i) => {
+if (s.spo2 && s.spo2 < 90 && prev >= 90) events.push({min: s.m, spo2: s.spo2});
+if (s.spo2) prev = s.spo2;
+});
+list.innerHTML = '<div style="font-size:10px;color:var(--danger);margin-bottom:8px">(!) ' + count + ' potential apnea event(s) detected</div>'
++ events.map(e=>`<div class="report-item"><div class="rdate">Sleep minute ${e.min}</div><div class="rtitle">SpO2 dropped to ${e.spo2}%</div></div>`).join('');
+}
+
+// =======================================================
+//  UTILS
+// =======================================================
+function set(id, val) {
+const el = document.getElementById(id);
+if (el && val !== undefined && val !== null) el.textContent = val;
+}
+
+// Init
+renderLogList();
+renderReportList();
+</script>
+</body>
+</html>
