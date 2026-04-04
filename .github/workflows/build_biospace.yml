@@ -1,0 +1,49 @@
+name: Build BioSpace Monitor APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build project files
+        run: python3 build_project.py
+
+      - name: Install Gradle wrapper
+        run: |
+          cd BioSpace
+          mkdir -p gradle/wrapper
+          curl -fL "https://services.gradle.org/distributions/gradle-8.0-bin.zip" -o /tmp/gradle-8.0-bin.zip
+          JAR_PATH=$(unzip -l /tmp/gradle-8.0-bin.zip | grep -oP 'gradle-8\.0/lib/gradle-wrapper[^ ]+\.jar' | head -1)
+          unzip -j /tmp/gradle-8.0-bin.zip "$JAR_PATH" -d gradle/wrapper/
+          mv gradle/wrapper/gradle-wrapper-*.jar gradle/wrapper/gradle-wrapper.jar
+          printf 'distributionBase=GRADLE_USER_HOME\ndistributionPath=wrapper/dists\ndistributionUrl=https\\://services.gradle.org/distributions/gradle-8.0-bin.zip\nzipStoreBase=GRADLE_USER_HOME\nzipStorePath=wrapper/dists\n' > gradle/wrapper/gradle-wrapper.properties
+          printf '#!/bin/sh\nexec java -classpath "gradle/wrapper/gradle-wrapper.jar" org.gradle.wrapper.GradleWrapperMain "$@"\n' > gradlew
+          chmod +x gradlew
+
+      - name: Build APK
+        run: |
+          cd BioSpace
+          ./gradlew assembleDebug --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BioSpace-Monitor-debug.apk
+          path: BioSpace/app/build/outputs/apk/debug/app-debug.apk
