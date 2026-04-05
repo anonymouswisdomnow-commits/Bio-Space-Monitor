@@ -6,22 +6,13 @@ import java.util.List;
 public class BioSpaceBrain {
     private List<Double> bzHistory = new ArrayList<>();
 
-    public String analyzeSevereEvents(double xRayFlux, double protonDensity, double windSpeed, double bz) {
-        // 1. SOLAR FLARE LOGIC (X-Ray Flux)
-        if (xRayFlux >= 0.0001) {
-            return "💥 FLARE ALERT: M-Class or higher detected. Immediate EM interference risk.";
+    public int getRequiredInterval(double bz, double windSpeed) {
+        // High Activity Thresholds: Bz < -5.0 or Wind > 500 km/s
+        if (bz < -5.0 || windSpeed > 500) {
+            return 5; // 5-minute high-resolution mode
         }
-
-        // 2. CME SHOCK LOGIC (Density + Speed)
-        if (protonDensity > 20.0 && windSpeed > 600) {
-            return "🌊 CME IMPACT: High-density plasma cloud detected. Sustained ANS pressure.";
-        }
-
-        // 3. COMBINED INSTABILITY
-        if (Math.abs(bz) > 15.0 && windSpeed > 700) {
-            return "🚨 SEVERE STORM: Magnetosphere under extreme compression.";
-        }
-
-        return "Solar Activity: Nominal.";
+        return 15; // 15-minute standard mode
     }
+
+    // ... existing analysis logic ...
 }
