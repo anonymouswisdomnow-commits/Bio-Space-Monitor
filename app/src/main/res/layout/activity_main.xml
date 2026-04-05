@@ -12,8 +12,8 @@
         <TextView android:id="@+id/brain_status" android:text="BRAIN: Analyzing Patterns..." android:background="#111100" android:textColor="#FFFF00" android:padding="10dp" android:layout_marginTop="20dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
         <RadioGroup android:id="@+id/report_type_group" android:layout_width="match_parent" android:layout_height="wrap_content"> 
             <RadioButton android:id="@+id/radio_general" android:text="General Health Report" android:textColor="#FFFFFF"/> 
-            <RadioButton android:id="@+id/radio_flare" android:text="Solar Symptom Flare Report" android:textColor="#FFFFFF"/> 
-            <RadioButton android:id="@+id/radio_predict" android:text="Solar Flare Prediction Report" android:textColor="#FFFFFF"/> 
+            <RadioButton android:id="@+id/radio_flare" android:visibility="gone" android:text="Solar Symptom Flare Report" android:textColor="#FFFFFF"/> 
+            <RadioButton android:id="@+id/radio_predict" android:visibility="gone" android:text="Solar Flare Prediction Report" android:textColor="#FFFFFF"/> 
         </RadioGroup>
         <Button android:id="@+id/btn_report" android:text="GENERATE AI CLINICAL REPORT" android:layout_marginTop="20dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
     </LinearLayout>

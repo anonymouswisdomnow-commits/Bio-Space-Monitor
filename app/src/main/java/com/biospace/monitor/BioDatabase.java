@@ -12,6 +12,8 @@ public class BioDatabase extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // Table for combined Space and Health logs
+        db.execSQL("CREATE TABLE metadata (install_date INTEGER)"); 
+        db.execSQL("INSERT INTO metadata (install_date) VALUES (" + System.currentTimeMillis() + ")");
         db.execSQL("CREATE TABLE logs (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, " +
