@@ -121,9 +121,39 @@ public class Y007Manager {
             gatt = null;
         }
         connected = false;
+        stopPolling();
     }
 
     public boolean isConnected() { return connected; }
+
+    private final Runnable pollRunnable = new Runnable() {
+        @Override
+        public void run() {
+            requestMeasurement();
+            mainHandler.postDelayed(this, 5 * 60 * 1000);
+        }
+    };
+
+    public void requestMeasurement() {
+        if (gatt == null || !connected) return;
+        BluetoothGattService service = gatt.getService(SERVICE_Y007);
+        if (service == null) return;
+        BluetoothGattCharacteristic c = service.getCharacteristic(CHAR_WRITE);
+        if (c == null) return;
+        byte[] cmd = new byte[]{(byte)0xAB, 0x00, 0x04, (byte)0xFF, 0x52, 0x00, 0x00, 0x52};
+        c.setValue(cmd);
+        gatt.writeCharacteristic(c);
+    }
+
+    public void startPolling() {
+        mainHandler.removeCallbacks(pollRunnable);
+        mainHandler.post(pollRunnable);
+    }
+
+    public void stopPolling() {
+        mainHandler.removeCallbacks(pollRunnable);
+    }
+
 
     // Current reading snapshot
     public BiometricReading getCurrentReading(SpaceWeatherData space) {
