@@ -5,31 +5,23 @@ import java.util.List;
 
 public class BioSpaceBrain {
     private List<Double> bzHistory = new ArrayList<>();
-    private static final int MAX_HISTORY = 10;
 
-    public String analyzeSystemInstability(double currentBz, double windSpeed) {
-        bzHistory.add(currentBz);
-        if (bzHistory.size() > MAX_HISTORY) bzHistory.remove(0);
-
-        if (bzHistory.size() < 2) return "Stabilizing...";
-
-        // Calculate Rate of Change (Delta)
-        double delta = Math.abs(currentBz - bzHistory.get(bzHistory.size() - 2));
-        
-        // Calculate Variance (How much is it jumping around?)
-        double variance = 0;
-        for (double val : bzHistory) variance += Math.abs(val - currentBz);
-        variance /= bzHistory.size();
-
-        // THE INSTABILITY FLAG
-        if (variance > 5.0 && windSpeed > 500) {
-            return "⚠️ SYSTEM INSTABILITY: Rapid Bz Oscillations Detected. High ANS stress risk.";
-        }
-        
-        if (delta > 10.0) {
-            return "⚡ POLARITY FLIP: Sudden North/South shift. Check for heart rate spikes.";
+    public String analyzeSevereEvents(double xRayFlux, double protonDensity, double windSpeed, double bz) {
+        // 1. SOLAR FLARE LOGIC (X-Ray Flux)
+        if (xRayFlux >= 0.0001) {
+            return "💥 FLARE ALERT: M-Class or higher detected. Immediate EM interference risk.";
         }
 
-        return "Magnetic Field: Stable.";
+        // 2. CME SHOCK LOGIC (Density + Speed)
+        if (protonDensity > 20.0 && windSpeed > 600) {
+            return "🌊 CME IMPACT: High-density plasma cloud detected. Sustained ANS pressure.";
+        }
+
+        // 3. COMBINED INSTABILITY
+        if (Math.abs(bz) > 15.0 && windSpeed > 700) {
+            return "🚨 SEVERE STORM: Magnetosphere under extreme compression.";
+        }
+
+        return "Solar Activity: Nominal.";
     }
 }

@@ -8,30 +8,24 @@ import org.json.JSONArray;
 public class EnvironmentalScraper {
     private final OkHttpClient client = new OkHttpClient();
 
-    public interface DataCallback {
-        void onSuccess(double value1, double value2);
-        void onError(Exception e);
-    }
-
-    public void fetchHemisphericPower(DataCallback callback) {
+    public void fetchSolarStormData(DataCallback callback) {
         new Thread(() -> {
             try {
-                // NOAA HPI JSON feed
-                Request request = new Request.Builder()
-                    .url("https://services.swpc.noaa.gov/json/ovation_aurora_latest.json")
+                // NOAA 1-minute X-ray Flux (Flares)
+                Request xrayRequest = new Request.Builder()
+                    .url("https://services.swpc.noaa.gov/json/goes/primary/xrays-1-minute.json")
+                    .build();
+                
+                // NOAA Plasma Data (CMEs/Density)
+                Request plasmaRequest = new Request.Builder()
+                    .url("https://services.swpc.noaa.gov/json/dscovr/plasma/1-day.json")
                     .build();
 
-                try (Response response = client.newCall(request).execute()) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        // This feed is a bit larger, but we'll extract the global power estimate
-                        callback.onSuccess(45.5, 0.0); // Logic to parse HPI goes here
-                    }
-                }
+                // Logic to parse both and return to the Brain...
+                callback.onSuccess(0.000001, 5.0); // Success placeholders
             } catch (Exception e) {
                 callback.onError(e);
             }
         }).start();
     }
-
-    // Keep your existing fetchSpaceWeather logic below...
 }
