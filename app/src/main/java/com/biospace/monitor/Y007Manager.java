@@ -121,10 +121,48 @@ public class Y007Manager {
             gatt = null;
         }
         connected = false;
+        stopContinuousMonitoring();
         stopPolling();
     }
 
     public boolean isConnected() { return connected; }
+
+    private final Runnable bpRunnable = new Runnable() {
+        @Override
+        public void run() {
+            requestBP();
+            mainHandler.postDelayed(this, 2 * 60 * 1000);
+        }
+    };
+
+    public void requestBP() {
+        if (gatt == null || !connected) return;
+        BluetoothGattService service = gatt.getService(SERVICE_Y007);
+        if (service == null) return;
+        BluetoothGattCharacteristic c = service.getCharacteristic(CHAR_WRITE);
+        if (c == null) return;
+        byte[] cmd = new byte[]{(byte)0xAB, 0x00, 0x04, (byte)0xFF, 0x52, 0x00, 0x00, 0x52};
+        c.setValue(cmd);
+        gatt.writeCharacteristic(c);
+    }
+
+    public void startContinuousMonitoring() {
+        if (gatt == null || !connected) return;
+        BluetoothGattService service = gatt.getService(SERVICE_Y007);
+        if (service == null) return;
+        BluetoothGattCharacteristic c = service.getCharacteristic(CHAR_WRITE);
+        if (c == null) return;
+        byte[] streamCmd = new byte[]{(byte)0xAB, 0x00, 0x04, (byte)0xFF, 0x51, 0x00, 0x00, 0x51};
+        c.setValue(streamCmd);
+        gatt.writeCharacteristic(c);
+        mainHandler.removeCallbacks(bpRunnable);
+        mainHandler.post(bpRunnable);
+    }
+
+    public void stopContinuousMonitoring() {
+        mainHandler.removeCallbacks(bpRunnable);
+    }
+
 
     private final Runnable pollRunnable = new Runnable() {
         @Override
@@ -206,6 +244,7 @@ public class Y007Manager {
                 Log.d(TAG, "Connected to " + dName);
                 g.discoverServices();
                 mainHandler.post(() -> { if (listener != null) listener.onConnected(dName); });
+                startContinuousMonitoring();
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connected = false;
                 Log.d(TAG, "Disconnected");
