@@ -13,3 +13,7 @@ android {
         versionName "2.0-CLEAN"
     }
 }
+
+dependencies {
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+}
