@@ -23,14 +23,13 @@ public class EnvironmentalScraper {
 
                 try (Response response = client.newCall(request).execute()) {
                     if (response.isSuccessful() && response.body() != null) {
-                        JSONArray array = new JSONArray(response.body().string());
-                        // Grab the latest reading (last element)
+                        String responseData = response.body().string();
+                        JSONArray array = new JSONArray(responseData);
+                        // Grab the latest reading (last element in the array)
                         JSONArray lastReading = array.getJSONArray(array.length() - 1);
-                        double bz = lastReading.getDouble(3); // Index 3 is typically Bz
+                        double bz = lastReading.getDouble(3); 
                         
-                        // For this version, we'll return Bz. 
-                        // Wind speed follows the same logic from the /plasma/ endpoint.
-                        callback.onSuccess(bz, 450.0); 
+                        callback.onSuccess(bz, 450.0); // Placeholder for wind speed
                     }
                 }
             } catch (Exception e) {

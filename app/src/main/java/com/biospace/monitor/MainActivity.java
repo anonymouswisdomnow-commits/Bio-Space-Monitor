@@ -15,14 +15,16 @@ public class MainActivity extends Activity {
 
         TextView spaceView = findViewById(R.id.space_data);
         
-        // Start the real-time fetch
         scraper.fetchSpaceWeather(new EnvironmentalScraper.DataCallback() {
             @Override
             public void onSuccess(double bz, double wind) {
                 runOnUiThread(() -> {
                     spaceView.setText("Bz: " + bz + " nT | Wind: " + wind + " km/s");
-                    // Brain analyzes the new data immediately
-                    brain.analyzeANSInteraction(70, 120, new EnvironmentalScraper.EnvData());
+                    // The Brain immediately analyzes the satellite data
+                    EnvironmentalScraper.EnvData currentEnv = new EnvironmentalScraper.EnvData();
+                    currentEnv.bz = bz;
+                    currentEnv.windSpeed = wind;
+                    brain.analyzeANSInteraction(70, 120, currentEnv);
                 });
             }
 
