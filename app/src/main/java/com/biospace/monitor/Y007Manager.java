@@ -121,77 +121,41 @@ public class Y007Manager {
             gatt = null;
         }
         connected = false;
-        stopContinuousMonitoring();
-        stopPolling();
     }
 
     public boolean isConnected() { return connected; }
 
+    // ---- Continuous monitoring ----
     private final Runnable bpRunnable = new Runnable() {
         @Override
         public void run() {
-            requestBP();
+            sendCommand(new byte[]{(byte)0xAB, 0x00, 0x04, (byte)0xFF, 0x52, 0x00, 0x00, 0x52});
             mainHandler.postDelayed(this, 2 * 60 * 1000);
         }
     };
 
-    public void requestBP() {
+    private void sendCommand(byte[] cmd) {
         if (gatt == null || !connected) return;
         BluetoothGattService service = gatt.getService(SERVICE_Y007);
         if (service == null) return;
         BluetoothGattCharacteristic c = service.getCharacteristic(CHAR_WRITE);
         if (c == null) return;
-        byte[] cmd = new byte[]{(byte)0xAB, 0x00, 0x04, (byte)0xFF, 0x52, 0x00, 0x00, 0x52};
         c.setValue(cmd);
         gatt.writeCharacteristic(c);
     }
 
-    public void startContinuousMonitoring() {
-        if (gatt == null || !connected) return;
-        BluetoothGattService service = gatt.getService(SERVICE_Y007);
-        if (service == null) return;
-        BluetoothGattCharacteristic c = service.getCharacteristic(CHAR_WRITE);
-        if (c == null) return;
-        byte[] streamCmd = new byte[]{(byte)0xAB, 0x00, 0x04, (byte)0xFF, 0x51, 0x00, 0x00, 0x51};
-        c.setValue(streamCmd);
-        gatt.writeCharacteristic(c);
+    private void startContinuousMonitoring() {
+        // Start real-time HR + SpO2 streaming
+        sendCommand(new byte[]{(byte)0xAB, 0x00, 0x04, (byte)0xFF, 0x51, 0x00, 0x00, 0x51});
+        // Auto BP every 2 minutes
         mainHandler.removeCallbacks(bpRunnable);
-        mainHandler.post(bpRunnable);
+        mainHandler.postDelayed(bpRunnable, 5000);
     }
 
-    public void stopContinuousMonitoring() {
+    private void stopContinuousMonitoring() {
         mainHandler.removeCallbacks(bpRunnable);
+        sendCommand(new byte[]{(byte)0xAB, 0x00, 0x04, (byte)0xFF, 0x51, 0x01, 0x00, 0x52});
     }
-
-
-    private final Runnable pollRunnable = new Runnable() {
-        @Override
-        public void run() {
-            requestMeasurement();
-            mainHandler.postDelayed(this, 5 * 60 * 1000);
-        }
-    };
-
-    public void requestMeasurement() {
-        if (gatt == null || !connected) return;
-        BluetoothGattService service = gatt.getService(SERVICE_Y007);
-        if (service == null) return;
-        BluetoothGattCharacteristic c = service.getCharacteristic(CHAR_WRITE);
-        if (c == null) return;
-        byte[] cmd = new byte[]{(byte)0xAB, 0x00, 0x04, (byte)0xFF, 0x52, 0x00, 0x00, 0x52};
-        c.setValue(cmd);
-        gatt.writeCharacteristic(c);
-    }
-
-    public void startPolling() {
-        mainHandler.removeCallbacks(pollRunnable);
-        mainHandler.post(pollRunnable);
-    }
-
-    public void stopPolling() {
-        mainHandler.removeCallbacks(pollRunnable);
-    }
-
 
     // Current reading snapshot
     public BiometricReading getCurrentReading(SpaceWeatherData space) {
@@ -243,10 +207,13 @@ public class Y007Manager {
                 final String dName = name;
                 Log.d(TAG, "Connected to " + dName);
                 g.discoverServices();
-                mainHandler.post(() -> { if (listener != null) listener.onConnected(dName); });
-                startContinuousMonitoring();
+                mainHandler.post(() -> {
+                    if (listener != null) listener.onConnected(dName);
+                    startContinuousMonitoring();
+                });
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connected = false;
+                stopContinuousMonitoring();
                 Log.d(TAG, "Disconnected");
                 mainHandler.post(() -> { if (listener != null) listener.onDisconnected(); });
             }
@@ -261,6 +228,7 @@ public class Y007Manager {
             if (service != null) {
                 enableNotify(g, service.getCharacteristic(CHAR_NOTIFY));
                 Log.d(TAG, "Y007 service found, notifications enabled");
+                mainHandler.postDelayed(() -> startContinuousMonitoring(), 1500);
             } else {
                 Log.w(TAG, "Y007 service not found, trying NUS");
                 // Try Nordic UART Service as fallback
@@ -362,7 +330,13 @@ public class Y007Manager {
         }
 
         if (notify) {
-            mainHandler.post(() -> { if (listener != null) listener.onDataUpdated(); });
+            final BiometricReading autoReading = getCurrentReading(null);
+            mainHandler.post(() -> {
+                if (listener != null) {
+                    listener.onDataUpdated();
+                    listener.onReadingReceived(autoReading);
+                }
+            });
         }
     }
 }
