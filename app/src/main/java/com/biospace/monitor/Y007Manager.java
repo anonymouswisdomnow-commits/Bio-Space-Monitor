@@ -20,21 +20,17 @@ import java.util.UUID;
 public class Y007Manager {
     private static final String TAG = "Y007Manager";
 
-    // Y007 GATT UUIDs discovered from BpDoctor decompilation
-    private static final UUID SERVICE_Y007        = UUID.fromString("00000000-0000-0000-6473-5f696c666973");
-    private static final UUID CHAR_WRITE          = UUID.fromString("00000000-0000-0100-6473-5f696c666973");
-    private static final UUID CHAR_NOTIFY         = UUID.fromString("00000000-0000-0200-6473-5f696c666973");
-    private static final UUID CCCD                = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+    // Real UUIDs from nRF Connect log - com.jiuan.BPV24 protocol
+    private static final UUID SERVICE_JIUAN  = UUID.fromString("636f6d2e-6a69-7561-6e2e-425056323400");
+    private static final UUID CHAR_NOTIFY    = UUID.fromString("7365642e-6a69-7561-6e2e-425056323400");
+    private static final UUID CHAR_WRITE     = UUID.fromString("7265632e-6a69-7561-6e2e-425056323400");
+    private static final UUID CCCD           = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
-    // Nordic UART Service (secondary)
-    private static final UUID NUS_SERVICE         = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-    private static final UUID NUS_TX              = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
-
-    // Protocol constants from BpDoctor DataSyncMgr
-    private static final int HEADER_AB  = 0xAB; // 171
-    private static final int HEADER_EA  = 0xEA; // 234
-    private static final int HEADER_FF  = 0xFF; // 255
-    private static final int TYPE_HEALTH = 0x31; // 49
+    // Protocol constants
+    private static final int HEADER_AB  = 0xAB;
+    private static final int HEADER_EA  = 0xEA;
+    private static final int HEADER_FF  = 0xFF;
+    private static final int TYPE_HEALTH = 0x31;
     private static final int SUBTYPE_HR       = 9;
     private static final int SUBTYPE_SPO2     = 10;
     private static final int SUBTYPE_BP       = 17;
@@ -136,7 +132,7 @@ public class Y007Manager {
 
     private void sendCommand(byte[] cmd) {
         if (gatt == null || !connected) return;
-        BluetoothGattService service = gatt.getService(SERVICE_Y007);
+        BluetoothGattService service = gatt.getService(SERVICE_JIUAN);
         if (service == null) return;
         BluetoothGattCharacteristic c = service.getCharacteristic(CHAR_WRITE);
         if (c == null) return;
@@ -144,7 +140,7 @@ public class Y007Manager {
         gatt.writeCharacteristic(c);
     }
 
-    private void startContinuousMonitoring() {
+    public void startContinuousMonitoring() {
         // Start real-time HR + SpO2 streaming
         sendCommand(new byte[]{(byte)0xAB, 0x00, 0x04, (byte)0xFF, 0x51, 0x00, 0x00, 0x51});
         // Auto BP every 2 minutes
@@ -152,7 +148,7 @@ public class Y007Manager {
         mainHandler.postDelayed(bpRunnable, 5000);
     }
 
-    private void stopContinuousMonitoring() {
+    public void stopContinuousMonitoring() {
         mainHandler.removeCallbacks(bpRunnable);
         sendCommand(new byte[]{(byte)0xAB, 0x00, 0x04, (byte)0xFF, 0x51, 0x01, 0x00, 0x52});
     }
@@ -207,10 +203,7 @@ public class Y007Manager {
                 final String dName = name;
                 Log.d(TAG, "Connected to " + dName);
                 g.discoverServices();
-                mainHandler.post(() -> {
-                    if (listener != null) listener.onConnected(dName);
-                    startContinuousMonitoring();
-                });
+                mainHandler.post(() -> { if (listener != null) listener.onConnected(dName); });
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connected = false;
                 stopContinuousMonitoring();
@@ -223,19 +216,14 @@ public class Y007Manager {
         public void onServicesDiscovered(BluetoothGatt g, int status) {
             if (status != BluetoothGatt.GATT_SUCCESS) return;
 
-            // Enable Y007 proprietary service notifications
-            BluetoothGattService service = g.getService(SERVICE_Y007);
+            BluetoothGattService service = g.getService(SERVICE_JIUAN);
             if (service != null) {
                 enableNotify(g, service.getCharacteristic(CHAR_NOTIFY));
-                Log.d(TAG, "Y007 service found, notifications enabled");
+                Log.d(TAG, "BP3L jiuan service found, notifications enabled");
+                // Start continuous monitoring after short delay
                 mainHandler.postDelayed(() -> startContinuousMonitoring(), 1500);
             } else {
-                Log.w(TAG, "Y007 service not found, trying NUS");
-                // Try Nordic UART Service as fallback
-                BluetoothGattService nus = g.getService(NUS_SERVICE);
-                if (nus != null) {
-                    enableNotify(g, nus.getCharacteristic(NUS_TX));
-                }
+                Log.e(TAG, "BP3L jiuan service NOT found - check UUID");
             }
         }
 
