@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/colorBg" android:padding="16dp">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="🧠 AI Health Analysis" android:textColor="@color/colorText"
+        android:textSize="20sp" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+
+    <EditText android:id="@+id/et_api_key"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:hint="Enter Gemini API Key" android:inputType="textPassword"
+        android:textColor="@color/colorText" android:textColorHint="@color/colorMuted"
+        android:background="@color/colorCard" android:padding="12dp"
+        android:layout_marginBottom="8dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_analyze"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Analyze My Readings with AI" android:layout_marginBottom="12dp"/>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1">
+        <TextView android:id="@+id/tv_ai_response"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Enter your Gemini API key and tap Analyze to get an AI interpretation of your biometric readings correlated with space weather conditions."
+            android:textColor="@color/colorText" android:textSize="13sp"
+            android:lineSpacingExtra="6dp"
+            android:padding="12dp"
+            android:background="@color/colorCard"/>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

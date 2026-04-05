@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.BioSpace" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/colorAccent</item>
+        <item name="colorPrimaryVariant">@color/colorCard</item>
+        <item name="colorOnPrimary">@color/colorText</item>
+        <item name="colorSecondary">@color/colorAccent2</item>
+        <item name="colorSurface">@color/colorCard</item>
+        <item name="colorOnSurface">@color/colorText</item>
+        <item name="android:windowBackground">@color/colorBg</item>
+        <item name="android:statusBarColor">@color/colorCard</item>
+        <item name="android:navigationBarColor">@color/colorBg</item>
+    </style>
+</resources>
