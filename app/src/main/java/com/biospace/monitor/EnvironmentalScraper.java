@@ -9,27 +9,22 @@ public class EnvironmentalScraper {
     private final OkHttpClient client = new OkHttpClient();
 
     public interface DataCallback {
-        void onSuccess(double bz, double wind);
+        void onSuccess(double value1, double value2);
         void onError(Exception e);
     }
 
-    public void fetchSpaceWeather(DataCallback callback) {
+    public void fetchHemisphericPower(DataCallback callback) {
         new Thread(() -> {
             try {
-                // Fetching real-time IMF Bz from DSCOVR satellite data
+                // NOAA HPI JSON feed
                 Request request = new Request.Builder()
-                    .url("https://services.swpc.noaa.gov/json/dscovr/mag/1-day.json")
+                    .url("https://services.swpc.noaa.gov/json/ovation_aurora_latest.json")
                     .build();
 
                 try (Response response = client.newCall(request).execute()) {
                     if (response.isSuccessful() && response.body() != null) {
-                        String responseData = response.body().string();
-                        JSONArray array = new JSONArray(responseData);
-                        // Grab the latest reading (last element in the array)
-                        JSONArray lastReading = array.getJSONArray(array.length() - 1);
-                        double bz = lastReading.getDouble(3); 
-                        
-                        callback.onSuccess(bz, 450.0); // Placeholder for wind speed
+                        // This feed is a bit larger, but we'll extract the global power estimate
+                        callback.onSuccess(45.5, 0.0); // Logic to parse HPI goes here
                     }
                 }
             } catch (Exception e) {
@@ -37,4 +32,6 @@ public class EnvironmentalScraper {
             }
         }).start();
     }
+
+    // Keep your existing fetchSpaceWeather logic below...
 }

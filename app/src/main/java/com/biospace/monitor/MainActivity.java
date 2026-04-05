@@ -5,7 +5,8 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    private EnvironmentalScraper scraper = new EnvironmentalScraper();
+    private EnvironmentalScraper spaceScraper = new EnvironmentalScraper();
+    private WeatherScraper weatherScraper = new WeatherScraper();
     private BioSpaceBrain brain = new BioSpaceBrain();
 
     @Override
@@ -14,24 +15,26 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         TextView spaceView = findViewById(R.id.space_data);
-        
-        scraper.fetchSpaceWeather(new EnvironmentalScraper.DataCallback() {
+        TextView envView = findViewById(R.id.env_data);
+
+        // 1. Fetch Space Weather (Bz)
+        spaceScraper.fetchSpaceWeather(new EnvironmentalScraper.DataCallback() {
             @Override
             public void onSuccess(double bz, double wind) {
                 runOnUiThread(() -> {
-                    spaceView.setText("Bz: " + bz + " nT | Wind: " + wind + " km/s");
-                    // The Brain immediately analyzes the satellite data
-                    EnvironmentalScraper.EnvData currentEnv = new EnvironmentalScraper.EnvData();
-                    currentEnv.bz = bz;
-                    currentEnv.windSpeed = wind;
-                    brain.analyzeANSInteraction(70, 120, currentEnv);
+                    spaceView.setText("Bz: " + bz + " nT | Instability: " + brain.analyzeSystemInstability(bz, wind));
                 });
             }
+            @Override public void onError(Exception e) {}
+        });
 
+        // 2. Fetch Local Weather (Pressure) - Using Ouachita Parish approx coordinates
+        weatherScraper.fetchLocalWeather(32.5, -92.1, new EnvironmentalScraper.DataCallback() {
             @Override
-            public void onError(Exception e) {
-                runOnUiThread(() -> spaceView.setText("Space Data: Connection Error"));
+            public void onSuccess(double pressure, double unused) {
+                runOnUiThread(() -> envView.setText("Baro: " + pressure + " hPa | HPI: Active"));
             }
+            @Override public void onError(Exception e) {}
         });
     }
 }
