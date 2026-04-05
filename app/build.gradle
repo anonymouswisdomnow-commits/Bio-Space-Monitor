@@ -1,0 +1,15 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.biospace.monitor'
+    compileSdk 34
+    defaultConfig {
+        applicationId "com.biospace.monitor"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "2.0-CLEAN"
+    }
+}
