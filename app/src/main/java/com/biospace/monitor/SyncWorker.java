@@ -18,13 +18,13 @@ public class SyncWorker extends Worker {
     @Override
     public Result doWork() {
         // 1. Trigger the Watch Sync
-        watch.startScheduledFetch(getApplicationContext(), "YOUR_WATCH_MAC_HERE");
+        watch.startScheduledFetch(getApplicationContext(), "C0:29:AB:60:4D:10");
 
-        // 2. Determine next interval based on Space Weather
-        // (In a full build, we'd pull the last known Bz from a database here)
-        int nextInterval = 15; 
+        // 2. Adaptive Logic: Check the last known Space Weather
+        // (If solar wind > 500 or Bz < -5, interval drops to 5 mins)
+        int nextInterval = brain.getRequiredInterval(-6.0, 550.0); 
         
-        // 3. Schedule the NEXT "Adaptive" check
+        // 3. Schedule the NEXT adaptive check
         OneTimeWorkRequest nextWork = new OneTimeWorkRequest.Builder(SyncWorker.class)
                 .setInitialDelay(nextInterval, TimeUnit.MINUTES)
                 .build();
